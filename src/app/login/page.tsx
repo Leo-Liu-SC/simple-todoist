@@ -34,7 +34,7 @@ export default function LoginPage() {
             <CheckCircle2 size={24} strokeWidth={2.5} />
           </span>
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight">Welcome back</h1>
-          <p className="text-sm text-slate-400 mt-1">Sign in to your tasks</p>
+          <p className="text-sm text-slate-500 mt-1">Sign in to your tasks</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-[var(--shadow-panel)] border border-slate-200/80 p-6">
@@ -46,7 +46,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-800 placeholder-slate-500 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
                 autoFocus
               />
             </div>

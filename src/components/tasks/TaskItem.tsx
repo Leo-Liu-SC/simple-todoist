@@ -100,7 +100,7 @@ export default function TaskItem({
         ref={sortable ? setNodeRef : undefined}
         style={style}
         onDoubleClick={() => onSelect(task)}
-        className={`relative grid items-center gap-3 py-2.5 transition-colors border-b border-slate-100 last:border-0 group ${
+        className={`relative grid items-center gap-3 py-2.5 transition-colors border-b border-slate-200 last:border-0 group ${
           selected ? "bg-indigo-50/70" : duePast ? "bg-red-50/40 hover:bg-red-50/70" : "hover:bg-slate-50"
         }`}
       >
@@ -110,7 +110,7 @@ export default function TaskItem({
             {...attributes}
             {...listeners}
             onClick={(e) => e.stopPropagation()}
-            className="absolute left-0.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing transition-opacity"
+            className="absolute left-0.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-500 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing transition-opacity"
             title="Drag to reorder"
           >
             <GripVertical size={14} />
@@ -124,7 +124,7 @@ export default function TaskItem({
         >
           <button
             onClick={(e) => { e.stopPropagation(); if (hasSubtasks) setSubtaskExpanded(!subtaskExpanded); }}
-            className={`w-4 h-4 flex items-center justify-center flex-shrink-0 rounded text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition-colors ${!hasSubtasks ? "invisible" : ""}`}
+            className={`w-4 h-4 flex items-center justify-center flex-shrink-0 rounded text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-colors ${!hasSubtasks ? "invisible" : ""}`}
             title={subtaskExpanded ? "Collapse subtasks" : "Expand subtasks"}
           >
             {subtaskExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
@@ -161,7 +161,7 @@ export default function TaskItem({
                   className="absolute left-0 top-7 z-30 bg-white border border-slate-200 rounded-xl shadow-[var(--shadow-pop)] py-1.5 w-44"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <p className="px-3 pb-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Set status</p>
+                  <p className="px-3 pb-1 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Set status</p>
                   {STATUSES.map((s) => (
                     <button
                       key={s.value}
@@ -194,7 +194,7 @@ export default function TaskItem({
         {/* Col: title */}
         <span
           onClick={(e) => { e.stopPropagation(); onSelect(task); }}
-          className={`text-sm min-w-0 truncate cursor-pointer rounded px-1 -mx-1 hover:bg-slate-100/70 ${isDone ? "line-through text-slate-400" : "text-slate-700"}`}
+          className={`text-sm min-w-0 truncate cursor-pointer rounded px-1 -mx-1 hover:bg-slate-100/70 ${isDone ? "line-through text-slate-400" : "text-slate-800"}`}
           title="Click to open details"
         >
           {task.title}
@@ -219,7 +219,7 @@ export default function TaskItem({
             ) : (
               <button
                 onClick={startEdit("dueDate")}
-                className={`text-xs flex items-center gap-1 tabular-nums rounded px-1 py-0.5 hover:bg-slate-100 ${duePast ? "text-red-500 font-medium" : task.dueDate ? "text-slate-400" : "text-slate-300"}`}
+                className={`text-xs flex items-center gap-1 tabular-nums rounded px-1 py-0.5 hover:bg-slate-100 ${duePast ? "text-red-500 font-medium" : task.dueDate ? "text-slate-500" : "text-slate-400"}`}
                 title="Click to set due date"
               >
                 {task.dueDate ? (<><Calendar size={11} />{formatDue(task.dueDate)}</>) : <Calendar size={11} />}
@@ -233,7 +233,7 @@ export default function TaskItem({
           <span className="relative flex justify-start min-w-0">
             <button
               onClick={startEdit("priority")}
-              className={`flex items-center gap-1 text-xs font-medium rounded px-1 py-0.5 hover:ring-2 hover:ring-slate-200 hover:bg-slate-50 ${task.priority < 4 ? prio.text : "text-slate-300"}`}
+              className={`flex items-center gap-1 text-xs font-medium rounded px-1 py-0.5 hover:ring-2 hover:ring-slate-200 hover:bg-slate-50 ${task.priority < 4 ? prio.text : "text-slate-400"}`}
               title="Click to set priority"
             >
               {task.priority < 4 ? (<><Flag size={12} className="fill-current" />{prio.label}</>) : <Flag size={12} />}
@@ -245,7 +245,7 @@ export default function TaskItem({
                   className="absolute left-0 top-7 z-30 bg-white border border-slate-200 rounded-xl shadow-[var(--shadow-pop)] py-1.5 w-40"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <p className="px-3 pb-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Set priority</p>
+                  <p className="px-3 pb-1 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Set priority</p>
                   {PRIORITIES.map((p) => (
                     <button
                       key={p.value}

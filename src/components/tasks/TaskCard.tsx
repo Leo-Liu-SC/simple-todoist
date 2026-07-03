@@ -71,7 +71,7 @@ export default function TaskCard({ task }: { task: Task }) {
             </svg>
           )}
         </button>
-        <span className={`text-sm flex-1 leading-snug ${isDone ? "line-through text-slate-400" : "text-slate-800"}`}>
+        <span className={`text-sm flex-1 leading-snug ${isDone ? "line-through text-slate-500" : "text-slate-800"}`}>
           {task.title}
         </span>
       </div>
@@ -88,13 +88,13 @@ export default function TaskCard({ task }: { task: Task }) {
             </span>
           ))}
           {task.dueDate && (
-            <span className={`text-xs flex items-center gap-1 tabular-nums ${duePast ? "text-red-500 font-medium" : "text-slate-400"}`}>
+            <span className={`text-xs flex items-center gap-1 tabular-nums ${duePast ? "text-red-500 font-medium" : "text-slate-500"}`}>
               <Calendar size={10} />
               {formatDue(task.dueDate)}
             </span>
           )}
           {task._count?.subtasks ? (
-            <span className="text-xs text-slate-400 flex items-center gap-0.5">
+            <span className="text-xs text-slate-500 flex items-center gap-0.5">
               <ChevronRight size={10} />{task._count.subtasks}
             </span>
           ) : null}

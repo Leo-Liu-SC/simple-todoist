@@ -58,12 +58,12 @@ export default function QuickAdd({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Task name"
-        className="w-full text-sm text-slate-900 placeholder-slate-400 focus:outline-none mb-2.5"
+        className="w-full text-sm text-slate-900 placeholder-slate-500 focus:outline-none mb-2.5"
         onKeyDown={(e) => { if (e.key === "Escape") onClose?.(); }}
       />
       <div className="flex items-center gap-2 flex-wrap">
         <div className="relative flex items-center">
-          <CalendarClock size={13} className="absolute left-2.5 text-slate-400 pointer-events-none" />
+          <CalendarClock size={13} className="absolute left-2.5 text-slate-500 pointer-events-none" />
           <input
             value={whenText}
             onChange={(e) => setWhenText(e.target.value)}
@@ -73,7 +73,7 @@ export default function QuickAdd({
           />
         </div>
         {whenText.trim() && (
-          <span className={`text-xs font-medium ${parsedDate ? "text-emerald-600" : "text-slate-400"}`}>
+          <span className={`text-xs font-medium ${parsedDate ? "text-emerald-600" : "text-slate-500"}`}>
             {parsedDate ? `→ ${format(parsedDate, "EEE MMM d")}` : "no date"}
           </span>
         )}
@@ -88,7 +88,7 @@ export default function QuickAdd({
           <option value={4}>No priority</option>
         </select>
         <div className="flex-1" />
-        <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100 transition-colors">
+        <button type="button" onClick={onClose} className="text-slate-500 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100 transition-colors">
           <X size={14} />
         </button>
         <button

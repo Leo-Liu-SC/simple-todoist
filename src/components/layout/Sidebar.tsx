@@ -30,7 +30,7 @@ function NavItem({ href, icon: Icon, label, count, color, indentIcon }: {
       <Icon size={16} style={{ color: color ?? (active ? "#4f46e5" : undefined) }} />
       <span className="flex-1 truncate">{label}</span>
       {count !== undefined && count > 0 && (
-        <span className={`text-xs tabular-nums ${active ? "text-slate-400" : "text-slate-400"}`}>{count}</span>
+        <span className={`text-xs tabular-nums ${active ? "text-slate-500" : "text-slate-500"}`}>{count}</span>
       )}
     </Link>
   );
@@ -108,7 +108,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
           <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center z-20">
             <button
               onClick={() => toggleMenu("project", p.id)}
-              className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200/60"
+              className="p-1 rounded-md text-slate-500 hover:text-slate-700 hover:bg-slate-200/60"
             >
               <MoreHorizontal size={14} />
             </button>
@@ -157,10 +157,10 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
 
         <div className="pt-3 pb-1 px-3">
           <div className="flex items-center justify-between">
-            <span className="text-[13px] font-semibold text-slate-400 uppercase tracking-wider">Projects</span>
+            <span className="text-[13px] font-semibold text-slate-500 uppercase tracking-wider">Projects</span>
             <button
               onClick={() => setProjectForm("new")}
-              className="text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 p-1 rounded-md transition-colors"
+              className="text-slate-500 hover:text-slate-700 hover:bg-slate-200/60 p-1 rounded-md transition-colors"
             >
               <Plus size={14} />
             </button>
@@ -171,10 +171,10 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
 
         <div className="pt-3 pb-1 px-3">
           <div className="flex items-center justify-between">
-            <span className="text-[13px] font-semibold text-slate-400 uppercase tracking-wider">Labels</span>
+            <span className="text-[13px] font-semibold text-slate-500 uppercase tracking-wider">Labels</span>
             <button
               onClick={() => setLabelForm("new")}
-              className="text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 p-1 rounded-md transition-colors"
+              className="text-slate-500 hover:text-slate-700 hover:bg-slate-200/60 p-1 rounded-md transition-colors"
             >
               <Plus size={14} />
             </button>

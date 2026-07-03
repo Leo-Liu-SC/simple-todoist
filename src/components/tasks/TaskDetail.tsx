@@ -121,7 +121,7 @@ export default function TaskDetail({
   }
 
   if (!task) return (
-    <div className="flex items-center justify-center h-full text-sm text-slate-400">Loading…</div>
+    <div className="flex items-center justify-center h-full text-sm text-slate-500">Loading…</div>
   );
 
   return (
@@ -146,10 +146,10 @@ export default function TaskDetail({
               <><Check size={12} />Saved</>
             )}
           </span>
-          <button onClick={handleDelete} className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors">
+          <button onClick={handleDelete} className="p-1.5 rounded-lg text-slate-500 hover:text-red-500 hover:bg-red-50 transition-colors">
             <Trash2 size={15} />
           </button>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
+          <button onClick={onClose} className="p-1.5 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors">
             <X size={15} />
           </button>
         </div>
@@ -165,7 +165,7 @@ export default function TaskDetail({
 
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
-            <label className="block text-[13px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Project</label>
+            <label className="block text-[13px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Project</label>
             <select
               value={task.projectId ?? ""}
               onChange={(e) => save({ projectId: e.target.value ? Number(e.target.value) : null })}
@@ -178,7 +178,7 @@ export default function TaskDetail({
             </select>
           </div>
           <div>
-            <label className="block text-[13px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Priority</label>
+            <label className="block text-[13px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Priority</label>
             <select
               value={task.priority}
               onChange={(e) => save({ priority: Number(e.target.value) })}
@@ -190,7 +190,7 @@ export default function TaskDetail({
             </select>
           </div>
           <div>
-            <label className="block text-[13px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Status</label>
+            <label className="block text-[13px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Status</label>
             <select
               value={task.status}
               onChange={(e) => save({ status: e.target.value })}
@@ -204,7 +204,7 @@ export default function TaskDetail({
         </div>
 
         <div>
-          <label className="block text-[13px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Due date</label>
+          <label className="block text-[13px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Due date</label>
           <div className="flex items-center gap-2 flex-wrap">
             <input
               type="date"
@@ -224,7 +224,7 @@ export default function TaskDetail({
             {task.dueDate && (
               <button
                 onClick={() => save({ dueDate: null })}
-                className="text-xs px-2 py-1.5 rounded-lg text-slate-400 hover:text-red-500 transition-colors"
+                className="text-xs px-2 py-1.5 rounded-lg text-slate-500 hover:text-red-500 transition-colors"
               >
                 Clear
               </button>
@@ -234,7 +234,7 @@ export default function TaskDetail({
 
         {labels.length > 0 && (
           <div>
-            <label className="block text-[13px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Labels</label>
+            <label className="block text-[13px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Labels</label>
             <div className="flex flex-wrap gap-1.5">
               {labels.map((l) => {
                 const active = task.labels.some((tl) => tl.id === l.id);
@@ -257,7 +257,7 @@ export default function TaskDetail({
 
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-[13px] font-semibold text-slate-400 uppercase tracking-wider">Description</label>
+            <label className="text-[13px] font-semibold text-slate-500 uppercase tracking-wider">Description</label>
             <span className={`text-[13px] font-medium flex items-center gap-1 text-emerald-500 transition-opacity ${descSaved ? "opacity-100" : "opacity-0"}`}>
               <Check size={11} /> Saved
             </span>
@@ -268,7 +268,7 @@ export default function TaskDetail({
         </div>
 
         <div>
-          <label className="block text-[13px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Subtasks</label>
+          <label className="block text-[13px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Subtasks</label>
 
           {task.subtasks && task.subtasks.length > 0 && (
             <SubtaskTree tasks={task.subtasks} onChanged={() => mutate()} />
