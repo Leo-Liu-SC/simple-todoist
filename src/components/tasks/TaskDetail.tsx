@@ -268,29 +268,28 @@ export default function TaskDetail({
         </div>
 
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Subtasks</label>
-            <button
-              onClick={() => setShowSubtaskAdd(!showSubtaskAdd)}
-              className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
-            >
-              <Plus size={12} /> Add
-            </button>
-          </div>
+          <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Subtasks</label>
 
-          {showSubtaskAdd && (
-            <div className="mb-2">
+          {task.subtasks && task.subtasks.length > 0 && (
+            <SubtaskTree tasks={task.subtasks} onChanged={() => mutate()} />
+          )}
+
+          {showSubtaskAdd ? (
+            <div className="mt-2">
               <QuickAdd
                 projectId={task.projectId ?? undefined}
                 parentId={task.id}
                 onClose={() => setShowSubtaskAdd(false)}
-                onCreated={() => { setShowSubtaskAdd(false); mutate(); }}
+                onCreated={() => mutate()}
               />
             </div>
-          )}
-
-          {task.subtasks && task.subtasks.length > 0 && (
-            <SubtaskTree tasks={task.subtasks} onChanged={() => mutate()} />
+          ) : (
+            <button
+              onClick={() => setShowSubtaskAdd(true)}
+              className="mt-2 text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+            >
+              <Plus size={12} /> Add subtask
+            </button>
           )}
         </div>
       </div>
