@@ -87,7 +87,7 @@ export default function TaskItem({
 
   const style = {
     gridTemplateColumns: gridTemplate(columns),
-    paddingLeft: `${16 + depth * 20}px`,
+    paddingLeft: "16px",
     paddingRight: "16px",
     ...(sortable
       ? { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 }
@@ -105,12 +105,6 @@ export default function TaskItem({
         }`}
       >
         {duePast && <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-red-400" />}
-        {depth > 0 && (
-          <span
-            className="absolute left-0 top-0 bottom-0 border-l border-slate-200"
-            style={{ left: `${depth * 20 + 8}px` }}
-          />
-        )}
         {sortable && depth === 0 && (
           <button
             {...attributes}
@@ -123,20 +117,32 @@ export default function TaskItem({
           </button>
         )}
 
-        {/* Col: checkbox */}
-        <button
-          onClick={toggleDone}
-          className={`w-[18px] h-[18px] rounded-full border-2 transition-all flex items-center justify-center ${
-            isDone ? "border-indigo-500 bg-indigo-500" : `bg-transparent ${prio.ring}`
-          }`}
-          title={isDone ? "Mark as to-do" : "Mark as done"}
+        {/* Col: toggle + checkbox — toggle is always reserved width to keep checkbox aligned */}
+        <span
+          className="flex items-center gap-1 flex-shrink-0"
+          style={{ paddingLeft: depth * 20 }}
         >
-          {isDone && (
-            <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 10">
-              <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          )}
-        </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); if (hasSubtasks) setSubtaskExpanded(!subtaskExpanded); }}
+            className={`w-4 h-4 flex items-center justify-center flex-shrink-0 rounded text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition-colors ${!hasSubtasks ? "invisible" : ""}`}
+            title={subtaskExpanded ? "Collapse subtasks" : "Expand subtasks"}
+          >
+            {subtaskExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+          </button>
+          <button
+            onClick={toggleDone}
+            className={`w-[16px] h-[16px] rounded border-2 transition-all flex items-center justify-center flex-shrink-0 ${
+              isDone ? "border-indigo-500 bg-indigo-500" : `bg-transparent ${prio.ring}`
+            }`}
+            title={isDone ? "Mark as to-do" : "Mark as done"}
+          >
+            {isDone && (
+              <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 10">
+                <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </button>
+        </span>
 
         {/* Col: status */}
         {columns.status && (
@@ -186,24 +192,12 @@ export default function TaskItem({
         )}
 
         {/* Col: title */}
-        <span className="flex items-center gap-1 min-w-0 px-1 -mx-1">
-          {hasSubtasks && (
-            <button
-              onClick={(e) => { e.stopPropagation(); setSubtaskExpanded(!subtaskExpanded); }}
-              className="flex-shrink-0 flex items-center gap-0.5 text-xs text-slate-400 hover:text-indigo-600 rounded px-0.5 py-0.5 hover:bg-slate-100"
-              title={subtaskExpanded ? "Collapse subtasks" : "Expand subtasks"}
-            >
-              {subtaskExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-              <span className="tabular-nums">{task._count?.subtasks}</span>
-            </button>
-          )}
-          <span
-            onClick={(e) => { e.stopPropagation(); onSelect(task); }}
-            className={`text-sm min-w-0 truncate cursor-pointer rounded hover:bg-slate-100/70 ${isDone ? "line-through text-slate-400" : "text-slate-700"}`}
-            title="Click to open details"
-          >
-            {task.title}
-          </span>
+        <span
+          onClick={(e) => { e.stopPropagation(); onSelect(task); }}
+          className={`text-sm min-w-0 truncate cursor-pointer rounded px-1 -mx-1 hover:bg-slate-100/70 ${isDone ? "line-through text-slate-400" : "text-slate-700"}`}
+          title="Click to open details"
+        >
+          {task.title}
         </span>
 
         {/* Col: due date */}

@@ -23,7 +23,7 @@ export const TRAILING_COLS = ["dueDate", "priority", "labels"] as const;
 export function gridTemplate(columns: ColumnConfig): string {
   const lead = LEADING_COLS.filter((k) => columns[k]).map((k) => `${COL_WIDTHS[k]}px`).join(" ");
   const trail = TRAILING_COLS.filter((k) => columns[k]).map((k) => `${COL_WIDTHS[k]}px`).join(" ");
-  return [`18px`, lead, `minmax(120px,420px)`, trail, `1fr`].filter(Boolean).join(" ");
+  return [`40px`, lead, `minmax(120px,420px)`, trail, `1fr`].filter(Boolean).join(" ");
 }
 
 // Single source of truth for priority + status metadata, used across
