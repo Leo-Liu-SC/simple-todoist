@@ -250,6 +250,9 @@ export default function TaskItem({
           ))}
         </span>
       )}
+
+      {/* Trailing spacer absorbs leftover width */}
+      <span />
     </div>
   );
 }

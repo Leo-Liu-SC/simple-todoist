@@ -17,10 +17,13 @@ export const LEADING_COLS = ["status", "project"] as const;
 export const TRAILING_COLS = ["dueDate", "priority", "labels"] as const;
 
 // Build the grid-template-columns string honoring the column order above.
+// The title is capped (not 1fr) and a trailing 1fr spacer absorbs leftover
+// width, so due/priority/labels sit right after the title instead of being
+// pushed to the far right edge.
 export function gridTemplate(columns: ColumnConfig): string {
   const lead = LEADING_COLS.filter((k) => columns[k]).map((k) => `${COL_WIDTHS[k]}px`).join(" ");
   const trail = TRAILING_COLS.filter((k) => columns[k]).map((k) => `${COL_WIDTHS[k]}px`).join(" ");
-  return [`18px`, lead, `minmax(0,1fr)`, trail].filter(Boolean).join(" ");
+  return [`18px`, lead, `minmax(120px,420px)`, trail, `1fr`].filter(Boolean).join(" ");
 }
 
 // Single source of truth for priority + status metadata, used across

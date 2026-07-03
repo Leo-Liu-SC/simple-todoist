@@ -310,6 +310,7 @@ export default function TaskList({
             {columns.dueDate && <SortHeader label="Due" sortKey="dueDate" rules={sortRules} onToggle={toggleSort} align="left" />}
             {columns.priority && <SortHeader label="Priority" sortKey="priority" rules={sortRules} onToggle={toggleSort} align="left" />}
             {columns.labels && <span>Labels</span>}
+            <span />
           </div>
         )}
         {isLoading && (
