@@ -33,7 +33,7 @@ export const PRIORITIES: { value: Priority; label: string; dot: string; ring: st
   { value: 1, label: "Urgent", dot: "bg-red-500", ring: "border-red-400 hover:border-red-500", text: "text-red-500" },
   { value: 2, label: "High", dot: "bg-orange-500", ring: "border-orange-400 hover:border-orange-500", text: "text-orange-500" },
   { value: 3, label: "Medium", dot: "bg-blue-500", ring: "border-blue-400 hover:border-blue-500", text: "text-blue-500" },
-  { value: 4, label: "No priority", dot: "bg-slate-300", ring: "border-slate-300 hover:border-slate-400", text: "text-slate-400" },
+  { value: 4, label: "Low", dot: "bg-slate-300", ring: "border-slate-300 hover:border-slate-400", text: "text-slate-400" },
 ];
 
 export const PRIORITY_BY_VALUE = Object.fromEntries(PRIORITIES.map((p) => [p.value, p])) as Record<Priority, (typeof PRIORITIES)[number]>;
