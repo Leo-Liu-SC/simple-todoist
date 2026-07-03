@@ -186,22 +186,24 @@ export default function TaskItem({
         )}
 
         {/* Col: title */}
-        <span
-          onClick={(e) => { e.stopPropagation(); onSelect(task); }}
-          className={`text-sm min-w-0 truncate cursor-pointer rounded px-1 -mx-1 hover:bg-slate-100/70 ${isDone ? "line-through text-slate-400" : "text-slate-700"}`}
-          title="Click to open details"
-        >
-          {task.title}
+        <span className="flex items-center gap-1 min-w-0 px-1 -mx-1">
           {hasSubtasks && (
             <button
               onClick={(e) => { e.stopPropagation(); setSubtaskExpanded(!subtaskExpanded); }}
-              className="ml-1.5 inline-flex items-center gap-0.5 text-xs text-slate-400 hover:text-indigo-600 align-middle"
+              className="flex-shrink-0 flex items-center gap-0.5 text-xs text-slate-400 hover:text-indigo-600 rounded px-0.5 py-0.5 hover:bg-slate-100"
               title={subtaskExpanded ? "Collapse subtasks" : "Expand subtasks"}
             >
-              {subtaskExpanded ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
-              {task._count?.subtasks}
+              {subtaskExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+              <span className="tabular-nums">{task._count?.subtasks}</span>
             </button>
           )}
+          <span
+            onClick={(e) => { e.stopPropagation(); onSelect(task); }}
+            className={`text-sm min-w-0 truncate cursor-pointer rounded hover:bg-slate-100/70 ${isDone ? "line-through text-slate-400" : "text-slate-700"}`}
+            title="Click to open details"
+          >
+            {task.title}
+          </span>
         </span>
 
         {/* Col: due date */}
