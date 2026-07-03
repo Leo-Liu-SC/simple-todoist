@@ -1,4 +1,24 @@
-import { Priority, Status } from "./types";
+import { Priority, Status, ColumnConfig } from "./types";
+
+// Fixed widths (px) for each optional trailing column. Shared by the list
+// header row and every task row so a CSS grid keeps them aligned — empty
+// cells render where a task has no value for that column.
+export const COL_WIDTHS = {
+  labels: 150,
+  project: 120,
+  dueDate: 84,
+  priority: 96,
+  status: 108,
+} as const;
+
+// Build the grid-template-columns string: checkbox | title (flex) | active columns.
+export function gridTemplate(columns: ColumnConfig): string {
+  const trailing = (Object.keys(COL_WIDTHS) as (keyof typeof COL_WIDTHS)[])
+    .filter((k) => columns[k])
+    .map((k) => `${COL_WIDTHS[k]}px`)
+    .join(" ");
+  return `18px minmax(0,1fr) ${trailing}`.trim();
+}
 
 // Single source of truth for priority + status metadata, used across
 // list, board, detail, and quick-add so labels/colors stay consistent.
