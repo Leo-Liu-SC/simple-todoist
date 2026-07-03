@@ -192,13 +192,13 @@ export default function TaskItem({
         )}
 
         {/* Col: title */}
-        <span
+        <button
           onClick={(e) => { e.stopPropagation(); onSelect(task); }}
-          className={`text-sm min-w-0 truncate cursor-pointer rounded px-1 -mx-1 hover:bg-slate-100/70 ${isDone ? "line-through text-slate-400" : "text-slate-800"}`}
-          title="Click to open details"
+          className={`text-sm min-w-0 truncate text-left rounded px-1 -mx-1 hover:bg-slate-100/70 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none ${isDone ? "line-through text-slate-500" : "text-slate-800"}`}
+          title="Open task details"
         >
           {task.title}
-        </span>
+        </button>
 
         {/* Col: due date */}
         {columns.dueDate && (

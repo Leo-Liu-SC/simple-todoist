@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Menu } from "lucide-react";
 import Sidebar from "./Sidebar";
 import TaskDetail from "@/components/tasks/TaskDetail";
@@ -10,59 +10,102 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [globalQuickAdd, setGlobalQuickAdd] = useState(false);
   const { selectedTask, setSelectedTask } = useTaskContext();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       const tag = (e.target as HTMLElement).tagName;
       const isInput = tag === "INPUT" || tag === "TEXTAREA" || (e.target as HTMLElement).isContentEditable;
-      if (e.key === "q" && !isInput && !e.metaKey && !e.ctrlKey) {
+      if (e.key === "q" && !isInput && !e.metaKey && !e.ctrlKey && !selectedTask) {
         e.preventDefault();
         setGlobalQuickAdd(true);
       }
-      if (e.key === "Escape") {
+      if (e.key === "Escape" && !selectedTask) {
         setGlobalQuickAdd(false);
-        setSelectedTask(null);
       }
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [setSelectedTask]);
+  }, [selectedTask]);
+
+  // Modal focus lifecycle: remember the trigger, move focus into the dialog on
+  // open, restore focus to the trigger on close.
+  useEffect(() => {
+    if (selectedTask) {
+      triggerRef.current = document.activeElement as HTMLElement;
+      // Focus the dialog container after it mounts.
+      requestAnimationFrame(() => dialogRef.current?.focus());
+    } else if (triggerRef.current) {
+      triggerRef.current.focus?.();
+      triggerRef.current = null;
+    }
+  }, [selectedTask]);
+
+  // Trap Tab within the dialog and close on Escape (scoped so popovers inside
+  // can intercept Escape first via stopPropagation).
+  function onDialogKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      setSelectedTask(null);
+      return;
+    }
+    if (e.key !== "Tab" || !dialogRef.current) return;
+    const focusables = dialogRef.current.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const active = document.activeElement;
+    if (e.shiftKey && active === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && active === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
-      {sidebarOpen && (
+      {/* App content — made inert while the task modal is open so background
+          controls are neither focusable nor announced to assistive tech. */}
+      <div className="flex flex-1 h-full overflow-hidden" inert={!!selectedTask}>
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-30 bg-black/30 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         <div
-          className="fixed inset-0 z-30 bg-black/30 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      <div
-        className={`fixed inset-y-0 left-0 z-40 w-60 transition-transform duration-200 lg:static lg:translate-x-0 lg:z-auto ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <Sidebar onClose={() => setSidebarOpen(false)} />
-      </div>
-
-      <div className="flex flex-1 overflow-hidden min-w-0">
-        <div className="lg:hidden fixed top-0 left-0 right-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200 px-4 py-3 flex items-center gap-3">
-          <button onClick={() => setSidebarOpen(true)} className="text-slate-500 hover:text-slate-900">
-            <Menu size={20} />
-          </button>
-          <span className="font-semibold text-slate-900 tracking-tight">Tasks</span>
+          className={`fixed inset-y-0 left-0 z-40 w-60 transition-transform duration-200 lg:static lg:translate-x-0 lg:z-auto ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <Sidebar onClose={() => setSidebarOpen(false)} />
         </div>
 
-        <div className="flex-1 overflow-hidden pt-12 lg:pt-0 min-w-0 flex flex-col">
-          {globalQuickAdd && (
-            <div className="px-4 pt-4">
-              <QuickAdd
-                onClose={() => setGlobalQuickAdd(false)}
-                onCreated={() => setGlobalQuickAdd(false)}
-              />
-            </div>
-          )}
-          {children}
+        <div className="flex flex-1 overflow-hidden min-w-0">
+          <div className="lg:hidden fixed top-0 left-0 right-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200 px-4 py-3 flex items-center gap-3">
+            <button onClick={() => setSidebarOpen(true)} className="text-slate-500 hover:text-slate-900" aria-label="Open menu">
+              <Menu size={20} />
+            </button>
+            <span className="font-semibold text-slate-900 tracking-tight">Tasks</span>
+          </div>
+
+          <div className="flex-1 overflow-hidden pt-12 lg:pt-0 min-w-0 flex flex-col">
+            {globalQuickAdd && (
+              <div className="px-4 pt-4">
+                <QuickAdd
+                  onClose={() => setGlobalQuickAdd(false)}
+                  onCreated={() => setGlobalQuickAdd(false)}
+                />
+              </div>
+            )}
+            {children}
+          </div>
         </div>
       </div>
 
@@ -72,7 +115,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
             onClick={() => setSelectedTask(null)}
           />
-          <div className="relative bg-white rounded-2xl shadow-[0_24px_64px_-12px_rgb(15_23_42/0.35)] w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+          <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="task-detail-title"
+            tabIndex={-1}
+            onKeyDown={onDialogKeyDown}
+            className="relative bg-white rounded-2xl shadow-[0_24px_64px_-12px_rgb(15_23_42/0.35)] w-full max-w-4xl min-h-[580px] max-h-[90vh] overflow-hidden flex flex-col focus:outline-none animate-[modalIn_0.15s_ease-out]"
+          >
             <TaskDetail
               taskId={selectedTask.id}
               onClose={() => setSelectedTask(null)}

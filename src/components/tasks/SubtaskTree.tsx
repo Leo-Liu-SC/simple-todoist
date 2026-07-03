@@ -5,14 +5,8 @@ import { format, isToday, isTomorrow } from "date-fns";
 import { Task } from "@/lib/types";
 import { updateTask } from "@/hooks/useTasks";
 import { useTaskContext } from "@/lib/TaskContext";
+import { PRIORITY_BY_VALUE } from "@/lib/taskMeta";
 import QuickAdd from "./QuickAdd";
-
-const PRIORITY_COLORS: Record<number, string> = {
-  1: "bg-red-500",
-  2: "bg-orange-500",
-  3: "bg-blue-500",
-  4: "bg-gray-200",
-};
 
 function formatDue(date: string) {
   const d = new Date(date);
@@ -36,6 +30,7 @@ function SubtaskRow({
   const children = task.subtasks ?? [];
   const hasChildren = children.length > 0;
   const isDone = task.status === "done";
+  const prio = PRIORITY_BY_VALUE[task.priority];
 
   async function toggleDone(e: React.MouseEvent) {
     e.stopPropagation();
@@ -46,48 +41,53 @@ function SubtaskRow({
   return (
     <div>
       <div
-        className="flex items-center gap-2 py-1.5 pr-2 hover:bg-gray-50 rounded group cursor-pointer"
+        className="flex items-center gap-2 py-1.5 pr-2 hover:bg-slate-50 rounded-lg group"
         style={{ paddingLeft: depth * 16 + 4 }}
-        onClick={() => setSelectedTask(task)}
       >
         <button
-          onClick={(e) => { e.stopPropagation(); setExpanded(!expanded); }}
-          className={`flex-shrink-0 text-gray-300 hover:text-gray-500 ${hasChildren ? "" : "invisible"}`}
+          onClick={() => setExpanded(!expanded)}
+          aria-label={expanded ? "Collapse subtasks" : "Expand subtasks"}
+          aria-expanded={hasChildren ? expanded : undefined}
+          className={`flex-shrink-0 text-slate-400 hover:text-slate-600 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none rounded ${hasChildren ? "" : "invisible"}`}
         >
-          {expanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
+          {expanded ? <ChevronDown size={13} aria-hidden="true" /> : <ChevronRight size={13} aria-hidden="true" />}
         </button>
 
         <button
           onClick={toggleDone}
-          className={`flex-shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-            isDone ? "border-gray-300 bg-gray-300" : PRIORITY_COLORS[task.priority]
+          aria-label={isDone ? "Mark as to-do" : "Mark as done"}
+          className={`flex-shrink-0 w-4 h-4 rounded border-2 transition-all flex items-center justify-center focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none ${
+            isDone ? "border-indigo-500 bg-indigo-500" : `bg-transparent ${prio.ring}`
           }`}
-          style={{ borderColor: isDone ? undefined : undefined }}
         >
           {isDone && (
-            <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 10">
-              <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 10" aria-hidden="true">
+              <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           )}
         </button>
 
-        <span className={`flex-1 text-sm min-w-0 truncate ${isDone ? "line-through text-gray-400" : "text-gray-700"}`}>
+        <button
+          onClick={() => setSelectedTask(task)}
+          className={`flex-1 text-sm min-w-0 truncate text-left rounded px-1 -mx-1 hover:bg-slate-100/70 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none ${isDone ? "line-through text-slate-400" : "text-slate-700"}`}
+          title="Open subtask details"
+        >
           {task.title}
-        </span>
+        </button>
 
         {task.dueDate && (
-          <span className="text-xs text-gray-400 flex items-center gap-1">
-            <Calendar size={10} />
+          <span className="text-xs text-slate-500 flex items-center gap-1 flex-shrink-0">
+            <Calendar size={10} aria-hidden="true" />
             {formatDue(task.dueDate)}
           </span>
         )}
 
         <button
-          onClick={(e) => { e.stopPropagation(); setShowAdd(!showAdd); }}
-          className="opacity-0 group-hover:opacity-100 text-gray-400 hover:text-indigo-600 flex-shrink-0"
-          title="Add subtask"
+          onClick={() => setShowAdd(!showAdd)}
+          aria-label="Add subtask"
+          className="opacity-0 group-hover:opacity-100 focus:opacity-100 text-slate-400 hover:text-indigo-600 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none rounded flex-shrink-0"
         >
-          <Plus size={13} />
+          <Plus size={13} aria-hidden="true" />
         </button>
       </div>
 
@@ -122,7 +122,7 @@ export default function SubtaskTree({
 }) {
   if (tasks.length === 0) return null;
   return (
-    <div className="border border-gray-200 rounded-lg py-1">
+    <div className="border border-slate-200 rounded-lg py-1">
       {tasks.map((t) => (
         <SubtaskRow key={t.id} task={t} depth={0} onChanged={onChanged} />
       ))}

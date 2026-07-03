@@ -52,7 +52,16 @@ export default function TaskCard({ task }: { task: Task }) {
       {...attributes}
       {...listeners}
       onClick={() => setSelectedTask(task)}
-      className={`bg-white border rounded-xl p-3 cursor-pointer transition-all shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5 ${
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          setSelectedTask(task);
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`Open task: ${task.title}`}
+      className={`bg-white border rounded-xl p-3 cursor-pointer transition-all shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none ${
         selectedTask?.id === task.id ? "border-indigo-400 ring-2 ring-indigo-500/15" : "border-slate-200"
       }`}
     >
