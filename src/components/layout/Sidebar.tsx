@@ -142,7 +142,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
           <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-sm">
             <CheckCircle2 size={16} strokeWidth={2.5} />
           </span>
-          <span className="font-semibold text-slate-900 text-[15px] tracking-tight">Tasks</span>
+          <span className="font-semibold text-slate-900 text-[17px] tracking-tight">Tasks</span>
         </div>
       </div>
 
@@ -157,7 +157,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
 
         <div className="pt-3 pb-1 px-3">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Projects</span>
+            <span className="text-[13px] font-semibold text-slate-400 uppercase tracking-wider">Projects</span>
             <button
               onClick={() => setProjectForm("new")}
               className="text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 p-1 rounded-md transition-colors"
@@ -171,7 +171,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
 
         <div className="pt-3 pb-1 px-3">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Labels</span>
+            <span className="text-[13px] font-semibold text-slate-400 uppercase tracking-wider">Labels</span>
             <button
               onClick={() => setLabelForm("new")}
               className="text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 p-1 rounded-md transition-colors"

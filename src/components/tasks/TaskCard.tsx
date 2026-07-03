@@ -81,7 +81,7 @@ export default function TaskCard({ task }: { task: Task }) {
           {task.labels.map((l) => (
             <span
               key={l.id}
-              className="text-[11px] px-2 py-0.5 rounded-full font-medium"
+              className="text-[13px] px-2 py-0.5 rounded-full font-medium"
               style={{ backgroundColor: l.color + "1a", color: l.color }}
             >
               {l.name}

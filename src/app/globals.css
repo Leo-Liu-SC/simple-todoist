@@ -19,6 +19,8 @@
 
 html {
   font-family: var(--font-sans);
+  /* Base font size bumped from 16px so all rem-based text scales up together. */
+  font-size: 18px;
 }
 
 @keyframes toastIn {

@@ -185,7 +185,7 @@ export default function TaskList({
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowSortMenu(false)} />
                 <div className="absolute right-0 top-9 z-20 bg-white border border-slate-200 rounded-xl shadow-[var(--shadow-pop)] py-2 w-52">
-                  <p className="px-3 pb-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Sort by</p>
+                  <p className="px-3 pb-1.5 text-[13px] font-semibold text-slate-400 uppercase tracking-wider">Sort by</p>
                   {SORT_OPTIONS.map((opt) => (
                     <button
                       key={opt.value}
@@ -223,7 +223,7 @@ export default function TaskList({
             <>
               <div className="fixed inset-0 z-10" onClick={() => setShowColumnMenu(false)} />
               <div className="absolute right-0 top-9 z-20 bg-white border border-slate-200 rounded-xl shadow-[var(--shadow-pop)] py-2 w-48">
-                <p className="px-3 pb-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Columns</p>
+                <p className="px-3 pb-1.5 text-[13px] font-semibold text-slate-400 uppercase tracking-wider">Columns</p>
                 {(Object.keys(columns) as (keyof ColumnConfig)[]).map((col) => (
                   <label key={col} className="flex items-center gap-2.5 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer">
                     <input
@@ -236,7 +236,7 @@ export default function TaskList({
                   </label>
                 ))}
                 <div className="my-1.5 border-t border-slate-100" />
-                <p className="px-3 pb-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Priority</p>
+                <p className="px-3 pb-1 text-[13px] font-semibold text-slate-400 uppercase tracking-wider">Priority</p>
                 {PRIORITIES.filter((p) => p.value < 4).map((p) => (
                   <div key={p.value} className="flex items-center gap-2.5 px-3 py-1 text-xs text-slate-500">
                     <span className={`w-2 h-2 rounded-full ${p.dot}`} />
