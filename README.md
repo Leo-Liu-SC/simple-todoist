@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Simple-todoist
 
-## Getting Started
+A lightweight personal task manager built for AI-native workflows. It runs locally, stores everything in SQLite, and exposes a full REST API plus an MCP server so Claude Code (and other AI agents) can query and manage tasks without touching the UI.
 
-First, run the development server:
+## What it is
+
+- **Web UI** — a Next.js task list with projects, labels, priorities, due dates, and a 7-state status workflow (`new → onme → delegated → blocked → notime → resultback → done`)
+- **REST API** (`/api/v1`) — bearer-token authenticated endpoints for external scripts and apps
+- **MCP server** — wraps the REST API as MCP tools so Claude Code can add, query, and update tasks natively in any conversation
+
+The status model is designed around a GTD-style capture-and-triage flow: tasks land in `new`, you mark what's `onme` today, delegate or block the rest, and close with `done`.
+
+## Stack
+
+- Next.js 15 (App Router) · TypeScript
+- Prisma + SQLite (local file, zero infra)
+- MCP SDK (`@modelcontextprotocol/sdk`)
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npx prisma migrate dev
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create a `.env.local` with:
+```
+API_TOKEN="your-secret-token"
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## MCP setup (Claude Code)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Build the MCP server once:
+```bash
+cd mcp && npm install && npm run build
+```
 
-## Learn More
+Add to your Claude Code `settings.json`:
+```json
+{
+  "mcpServers": {
+    "simple-todoist": {
+      "command": "node",
+      "args": ["/absolute/path/to/Simple-todoist/mcp/dist/index.js"]
+    }
+  }
+}
+```
 
-To learn more about Next.js, take a look at the following resources:
+The MCP server reads `API_TOKEN` from the app's `.env.local` automatically — no token config needed in Claude Code.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## REST API
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+See [API.md](API.md) for the full endpoint reference.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Base URL: `http://localhost:3000/api/v1`  
+Auth: `Authorization: Bearer <API_TOKEN>`
