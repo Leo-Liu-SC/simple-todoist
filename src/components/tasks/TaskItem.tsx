@@ -6,7 +6,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Task, ColumnConfig, Priority, Status } from "@/lib/types";
 import { updateTask } from "@/hooks/useTasks";
-import { PRIORITIES, PRIORITY_BY_VALUE, STATUSES, STATUS_BY_VALUE, gridTemplate } from "@/lib/taskMeta";
+import { PRIORITIES, PRIORITY_BY_VALUE, STATUSES, statusMeta, gridTemplate } from "@/lib/taskMeta";
 import { useToast } from "@/lib/ToastContext";
 
 function formatDue(date: string) {
@@ -50,13 +50,13 @@ export default function TaskItem({
 
   const isDone = task.status === "done";
   const prio = PRIORITY_BY_VALUE[task.priority];
-  const stat = STATUS_BY_VALUE[task.status];
+  const stat = statusMeta(task.status);
   const duePast = task.dueDate && !isDone && isPast(new Date(task.dueDate)) && !isToday(new Date(task.dueDate));
 
   async function toggleDone(e: React.MouseEvent) {
     e.stopPropagation();
     const prev = task.status;
-    const next = isDone ? "todo" : "done";
+    const next = isDone ? "new" : "done";
     await updateTask(task.id, { status: next });
     if (next === "done") {
       toast.show("Task completed", {

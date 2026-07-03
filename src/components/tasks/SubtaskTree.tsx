@@ -39,7 +39,7 @@ function SubtaskRow({
 
   async function toggleDone(e: React.MouseEvent) {
     e.stopPropagation();
-    await updateTask(task.id, { status: isDone ? "todo" : "done" });
+    await updateTask(task.id, { status: isDone ? "new" : "done" });
     onChanged();
   }
 

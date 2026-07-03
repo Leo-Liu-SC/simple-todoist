@@ -29,7 +29,7 @@ export default function TaskCard({ task }: { task: Task }) {
   async function toggleDone(e: React.MouseEvent) {
     e.stopPropagation();
     const prev = task.status;
-    const next = isDone ? "todo" : "done";
+    const next = isDone ? "new" : "done";
     await updateTask(task.id, { status: next });
     if (next === "done") {
       toast.show("Task completed", {

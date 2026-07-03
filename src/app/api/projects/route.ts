@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   if (!(await requireAuth(req))) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const projects = await prisma.project.findMany({
     orderBy: { order: "asc" },
-    include: { _count: { select: { tasks: { where: { status: "todo", parentId: null } } } } },
+    include: { _count: { select: { tasks: { where: { status: { not: "done" }, parentId: null } } } } },
   });
   return NextResponse.json(projects);
 }

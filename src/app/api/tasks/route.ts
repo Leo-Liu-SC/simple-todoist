@@ -31,11 +31,11 @@ export async function GET(req: NextRequest) {
   if (view === "today") {
     const now = new Date();
     where.dueDate = { gte: startOfDay(now), lte: endOfDay(now) };
-    where.status = "todo";
+    where.status = { not: "done" };
   } else if (view === "upcoming") {
     const now = new Date();
     where.dueDate = { gte: startOfDay(now), lte: endOfDay(addDays(now, 7)) };
-    where.status = "todo";
+    where.status = { not: "done" };
   }
 
   const tasks = await prisma.task.findMany({
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
       description: body.description ?? null,
       dueDate: body.dueDate ? new Date(body.dueDate) : null,
       priority: body.priority ?? 4,
-      status: body.status ?? "todo",
+      status: body.status ?? "new",
       projectId: body.projectId ?? null,
       parentId: body.parentId ?? null,
       order: (maxOrder._max.order ?? 0) + 1,

@@ -103,7 +103,7 @@ export default function TaskDetail({
   async function toggleComplete() {
     if (!task) return;
     const prev = task.status;
-    const next = task.status === "done" ? "todo" : "done";
+    const next = task.status === "done" ? "new" : "done";
     await save({ status: next });
     if (next === "done") {
       toast.show("Task completed", {
