@@ -80,18 +80,21 @@ export default function TaskDetail({
   }
 
   if (!task) return (
-    <div className="flex items-center justify-center h-full text-sm text-gray-400">Loading…</div>
+    <div className="flex items-center justify-center h-full text-sm text-slate-400">Loading…</div>
   );
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-5 py-3 border-b border-gray-200">
-        <span className="text-xs text-gray-400">{saving ? "Saving…" : "Task detail"}</span>
+      <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200/80">
+        <span className={`text-xs font-medium flex items-center gap-1.5 ${saving ? "text-indigo-500" : "text-slate-400"}`}>
+          {saving && <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />}
+          {saving ? "Saving…" : "Task detail"}
+        </span>
         <div className="flex items-center gap-1">
-          <button onClick={handleDelete} className="p-1.5 rounded text-gray-400 hover:text-red-500 hover:bg-red-50">
+          <button onClick={handleDelete} className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors">
             <Trash2 size={15} />
           </button>
-          <button onClick={onClose} className="p-1.5 rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100">
+          <button onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
             <X size={15} />
           </button>
         </div>
@@ -102,16 +105,16 @@ export default function TaskDetail({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onBlur={handleTitleBlur}
-          className="w-full text-base font-medium text-gray-900 focus:outline-none border-b border-transparent focus:border-indigo-300 pb-1 transition-colors"
+          className="w-full text-lg font-semibold text-slate-900 tracking-tight focus:outline-none border-b-2 border-transparent focus:border-indigo-400 pb-1 transition-colors"
         />
 
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Project</label>
+            <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Project</label>
             <select
               value={task.projectId ?? ""}
               onChange={(e) => save({ projectId: e.target.value ? Number(e.target.value) : null })}
-              className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="w-full border border-slate-200 rounded-lg px-2.5 py-2 text-sm text-slate-700 bg-slate-50/50 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 transition-all"
             >
               <option value="">No project</option>
               {projects.map((p) => (
@@ -120,11 +123,11 @@ export default function TaskDetail({
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Priority</label>
+            <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Priority</label>
             <select
               value={task.priority}
               onChange={(e) => save({ priority: Number(e.target.value) })}
-              className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="w-full border border-slate-200 rounded-lg px-2.5 py-2 text-sm text-slate-700 bg-slate-50/50 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 transition-all"
             >
               {PRIORITY_OPTIONS.map((p) => (
                 <option key={p.value} value={p.value}>{p.label}</option>
@@ -132,20 +135,20 @@ export default function TaskDetail({
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Due date</label>
+            <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Due date</label>
             <input
               type="date"
               value={task.dueDate ? format(new Date(task.dueDate), "yyyy-MM-dd") : ""}
               onChange={(e) => save({ dueDate: e.target.value || null })}
-              className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="w-full border border-slate-200 rounded-lg px-2.5 py-2 text-sm text-slate-700 bg-slate-50/50 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 transition-all"
             />
           </div>
           <div>
-            <label className="block text-xs text-gray-400 mb-1">Status</label>
+            <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Status</label>
             <select
               value={task.status}
               onChange={(e) => save({ status: e.target.value })}
-              className="w-full border border-gray-200 rounded-lg px-2 py-1.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              className="w-full border border-slate-200 rounded-lg px-2.5 py-2 text-sm text-slate-700 bg-slate-50/50 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 transition-all"
             >
               <option value="todo">To do</option>
               <option value="done">Done</option>
@@ -155,7 +158,7 @@ export default function TaskDetail({
 
         {labels.length > 0 && (
           <div>
-            <label className="block text-xs text-gray-400 mb-2">Labels</label>
+            <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Labels</label>
             <div className="flex flex-wrap gap-1.5">
               {labels.map((l) => {
                 const active = task.labels.some((tl) => tl.id === l.id);
@@ -163,8 +166,8 @@ export default function TaskDetail({
                   <button
                     key={l.id}
                     onClick={() => toggleLabel(l.id)}
-                    className={`text-xs px-2 py-1 rounded-full border transition-all ${
-                      active ? "border-transparent" : "border-gray-200 text-gray-500 bg-white hover:border-gray-300"
+                    className={`text-xs px-2.5 py-1 rounded-full border font-medium transition-all ${
+                      active ? "border-transparent" : "border-slate-200 text-slate-500 bg-white hover:border-slate-300 hover:bg-slate-50"
                     }`}
                     style={active ? { backgroundColor: l.color + "22", color: l.color, borderColor: l.color + "44" } : {}}
                   >
@@ -177,7 +180,7 @@ export default function TaskDetail({
         )}
 
         <div>
-          <label className="block text-xs text-gray-400 mb-2">Description</label>
+          <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Description</label>
           <div onBlur={handleDescriptionBlur}>
             <RichTextEditor content={description} onChange={handleDescriptionChange} />
           </div>
@@ -185,7 +188,7 @@ export default function TaskDetail({
 
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs text-gray-400">Subtasks</label>
+            <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Subtasks</label>
             <button
               onClick={() => setShowSubtaskAdd(!showSubtaskAdd)}
               className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1"

@@ -45,11 +45,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <div className="flex flex-1 overflow-hidden min-w-0">
-        <div className="lg:hidden fixed top-0 left-0 right-0 z-20 bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3">
-          <button onClick={() => setSidebarOpen(true)} className="text-gray-500 hover:text-gray-900">
+        <div className="lg:hidden fixed top-0 left-0 right-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200 px-4 py-3 flex items-center gap-3">
+          <button onClick={() => setSidebarOpen(true)} className="text-slate-500 hover:text-slate-900">
             <Menu size={20} />
           </button>
-          <span className="font-semibold text-gray-900">Tasks</span>
+          <span className="font-semibold text-slate-900 tracking-tight">Tasks</span>
         </div>
 
         <div className={`flex-1 overflow-hidden pt-12 lg:pt-0 min-w-0 ${selectedTask ? "hidden md:flex md:flex-col" : "flex flex-col"}`}>
@@ -65,7 +65,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         {selectedTask && (
-          <div className="w-full md:w-[380px] border-l border-gray-200 flex-shrink-0 overflow-hidden flex flex-col">
+          <div className="w-full md:w-[400px] border-l border-slate-200 bg-white flex-shrink-0 overflow-hidden flex flex-col shadow-[-8px_0_24px_-12px_rgb(15_23_42/0.08)]">
             <TaskDetail
               taskId={selectedTask.id}
               onClose={() => setSelectedTask(null)}

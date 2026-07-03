@@ -13,6 +13,14 @@ const PRIORITY_COLORS: Record<number, string> = {
   4: "bg-gray-200",
 };
 
+// Border color for the uncompleted checkbox ring, tinted by priority.
+const PRIORITY_RING: Record<number, string> = {
+  1: "border-red-400 hover:border-red-500",
+  2: "border-orange-400 hover:border-orange-500",
+  3: "border-blue-400 hover:border-blue-500",
+  4: "border-slate-300 hover:border-slate-400",
+};
+
 function formatDue(date: string) {
   const d = new Date(date);
   if (isToday(d)) return "Today";
@@ -54,8 +62,8 @@ export default function TaskItem({
       ref={sortable ? setNodeRef : undefined}
       style={style}
       onClick={() => onSelect(task)}
-      className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors border-b border-gray-100 last:border-0 group ${
-        selected ? "bg-indigo-50" : "hover:bg-gray-50"
+      className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors border-b border-slate-100 last:border-0 group ${
+        selected ? "bg-indigo-50/70" : "hover:bg-slate-50"
       }`}
     >
       {sortable && (
@@ -63,7 +71,7 @@ export default function TaskItem({
           {...attributes}
           {...listeners}
           onClick={(e) => e.stopPropagation()}
-          className="flex-shrink-0 -ml-1 text-gray-300 hover:text-gray-500 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing"
+          className="flex-shrink-0 -ml-1 text-slate-300 hover:text-slate-500 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing transition-opacity"
           title="Drag to reorder"
         >
           <GripVertical size={14} />
@@ -71,23 +79,23 @@ export default function TaskItem({
       )}
       <button
         onClick={toggleDone}
-        className={`flex-shrink-0 w-4 h-4 rounded-full border-2 transition-all flex items-center justify-center ${
-          isDone ? "border-gray-300 bg-gray-300" : `border-2 ${PRIORITY_COLORS[task.priority]} border-opacity-80 bg-transparent`
+        className={`flex-shrink-0 w-[18px] h-[18px] rounded-full border-2 transition-all flex items-center justify-center ${
+          isDone ? "border-indigo-500 bg-indigo-500" : `bg-transparent ${PRIORITY_RING[task.priority]}`
         }`}
-        style={{ borderColor: isDone ? undefined : undefined }}
+        title={isDone ? "Mark as to-do" : "Mark as done"}
       >
         {isDone && (
           <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 10">
-            <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         )}
       </button>
 
-      <span className={`flex-1 text-sm min-w-0 truncate ${isDone ? "line-through text-gray-400" : "text-gray-800"}`}>
+      <span className={`flex-1 text-sm min-w-0 truncate ${isDone ? "line-through text-slate-400" : "text-slate-700"}`}>
         {task.title}
         {task._count?.subtasks ? (
-          <span className="ml-1.5 text-xs text-gray-400">
-            <ChevronRight size={10} className="inline" />{task._count.subtasks}
+          <span className="ml-2 inline-flex items-center gap-0.5 text-xs text-slate-400 align-middle">
+            <ChevronRight size={11} />{task._count.subtasks}
           </span>
         ) : null}
       </span>
@@ -96,22 +104,22 @@ export default function TaskItem({
         {columns.labels && task.labels.map((l) => (
           <span
             key={l.id}
-            className="text-xs px-1.5 py-0.5 rounded-full font-medium"
-            style={{ backgroundColor: l.color + "22", color: l.color }}
+            className="text-[11px] px-2 py-0.5 rounded-full font-medium leading-relaxed"
+            style={{ backgroundColor: l.color + "1a", color: l.color }}
           >
             {l.name}
           </span>
         ))}
 
         {columns.project && task.project && (
-          <span className="text-xs text-gray-400 flex items-center gap-1">
+          <span className="text-xs text-slate-400 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: task.project.color }} />
             {task.project.name}
           </span>
         )}
 
         {columns.dueDate && task.dueDate && (
-          <span className={`text-xs flex items-center gap-1 ${duePast ? "text-red-500" : "text-gray-400"}`}>
+          <span className={`text-xs flex items-center gap-1 tabular-nums ${duePast ? "text-red-500 font-medium" : "text-slate-400"}`}>
             <Calendar size={11} />
             {formatDue(task.dueDate)}
           </span>

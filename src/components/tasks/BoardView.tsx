@@ -16,16 +16,18 @@ const COLUMNS: { status: Status; label: string }[] = [
 
 function Column({ status, label, tasks }: { status: Status; label: string; tasks: Task[] }) {
   const { setNodeRef, isOver } = useDroppable({ id: `col-${status}` });
+  const dotColor = status === "done" ? "bg-emerald-500" : "bg-slate-400";
   return (
     <div className="flex flex-col w-72 flex-shrink-0">
-      <div className="flex items-center gap-2 px-2 pb-2">
-        <span className="text-sm font-medium text-gray-700">{label}</span>
-        <span className="text-xs text-gray-400">{tasks.length}</span>
+      <div className="flex items-center gap-2 px-2.5 pb-2.5">
+        <span className={`w-2 h-2 rounded-full ${dotColor}`} />
+        <span className="text-sm font-semibold text-slate-700">{label}</span>
+        <span className="text-xs text-slate-400 tabular-nums bg-slate-100 rounded-full px-1.5 py-0.5">{tasks.length}</span>
       </div>
       <div
         ref={setNodeRef}
-        className={`flex-1 rounded-xl p-2 space-y-2 min-h-24 transition-colors ${
-          isOver ? "bg-indigo-50" : "bg-gray-50"
+        className={`flex-1 rounded-2xl p-2 space-y-2 min-h-24 border transition-colors ${
+          isOver ? "bg-indigo-50/70 border-indigo-200" : "bg-slate-50/70 border-slate-200/60"
         }`}
       >
         <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
@@ -34,7 +36,9 @@ function Column({ status, label, tasks }: { status: Status; label: string; tasks
           ))}
         </SortableContext>
         {tasks.length === 0 && (
-          <div className="text-xs text-gray-300 text-center py-6">Drop here</div>
+          <div className="text-xs text-slate-300 text-center py-8 border-2 border-dashed border-slate-200 rounded-xl">
+            Drop here
+          </div>
         )}
       </div>
     </div>

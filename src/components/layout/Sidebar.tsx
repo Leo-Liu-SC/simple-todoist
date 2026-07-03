@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   CalendarDays, Star, List, Plus, MoreHorizontal,
-  Pencil, Trash2, LogOut, Tag, ChevronRight, ChevronDown,
+  Pencil, Trash2, LogOut, Tag, ChevronRight, ChevronDown, CheckCircle2,
 } from "lucide-react";
 import { useProjects, deleteProject } from "@/hooks/useProjects";
 import { useLabels, deleteLabel } from "@/hooks/useLabels";
@@ -20,14 +20,17 @@ function NavItem({ href, icon: Icon, label, count, color, indentIcon }: {
   return (
     <Link
       href={href}
-      className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
-        active ? "bg-indigo-50 text-indigo-700 font-medium" : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+      className={`group/nav relative flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-all ${
+        active
+          ? "bg-white text-slate-900 font-semibold shadow-[0_1px_2px_0_rgb(15_23_42/0.06)] ring-1 ring-slate-200/70"
+          : "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900"
       } ${indentIcon ? "pl-5" : ""}`}
     >
+      {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-0.5 rounded-full bg-indigo-500" />}
       <Icon size={16} style={{ color: color ?? (active ? "#4f46e5" : undefined) }} />
-      <span className="flex-1">{label}</span>
+      <span className="flex-1 truncate">{label}</span>
       {count !== undefined && count > 0 && (
-        <span className="text-xs text-gray-400">{count}</span>
+        <span className={`text-xs tabular-nums ${active ? "text-slate-400" : "text-slate-400"}`}>{count}</span>
       )}
     </Link>
   );
@@ -105,13 +108,13 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
           <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex items-center z-20">
             <button
               onClick={() => toggleMenu("project", p.id)}
-              className="p-1 rounded text-gray-400 hover:text-gray-600"
+              className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200/60"
             >
               <MoreHorizontal size={14} />
             </button>
           </div>
           {isMenuOpen("project", p.id) && (
-            <div className="absolute right-0 top-7 z-30 bg-white border border-gray-200 rounded-lg shadow-md py-1 min-w-32">
+            <div className="absolute right-0 top-7 z-30 bg-white border border-slate-200 rounded-xl shadow-[var(--shadow-pop)] py-1 min-w-32">
               <button
                 onClick={() => { setProjectForm(p); setMenuOpen(null); }}
                 className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
@@ -133,9 +136,14 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
   }
 
   return (
-    <aside className="flex flex-col h-full w-full bg-gray-50 border-r border-gray-200">
-      <div className="p-4 border-b border-gray-200">
-        <span className="font-semibold text-gray-900 text-base">Tasks</span>
+    <aside className="flex flex-col h-full w-full bg-slate-50 border-r border-slate-200">
+      <div className="px-4 py-3.5 border-b border-slate-200/80">
+        <div className="flex items-center gap-2.5">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-sm">
+            <CheckCircle2 size={16} strokeWidth={2.5} />
+          </span>
+          <span className="font-semibold text-slate-900 text-[15px] tracking-tight">Tasks</span>
+        </div>
       </div>
 
       {menuOpen && (
@@ -149,10 +157,10 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
 
         <div className="pt-3 pb-1 px-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Projects</span>
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Projects</span>
             <button
               onClick={() => setProjectForm("new")}
-              className="text-gray-400 hover:text-gray-600 p-0.5 rounded"
+              className="text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 p-1 rounded-md transition-colors"
             >
               <Plus size={14} />
             </button>
@@ -163,10 +171,10 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
 
         <div className="pt-3 pb-1 px-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-gray-400 uppercase tracking-wide">Labels</span>
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Labels</span>
             <button
               onClick={() => setLabelForm("new")}
-              className="text-gray-400 hover:text-gray-600 p-0.5 rounded"
+              className="text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 p-1 rounded-md transition-colors"
             >
               <Plus size={14} />
             </button>
@@ -190,7 +198,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
               </button>
             </div>
             {isMenuOpen("label", l.id) && (
-              <div className="absolute right-0 top-7 z-30 bg-white border border-gray-200 rounded-lg shadow-md py-1 min-w-32">
+              <div className="absolute right-0 top-7 z-30 bg-white border border-slate-200 rounded-xl shadow-[var(--shadow-pop)] py-1 min-w-32">
                 <button
                   onClick={() => { setLabelForm(l); setMenuOpen(null); }}
                   className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 w-full text-left"
@@ -209,10 +217,10 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
         ))}
       </nav>
 
-      <div className="p-2 border-t border-gray-200">
+      <div className="p-2 border-t border-slate-200/80">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-100 w-full"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 w-full transition-colors"
         >
           <LogOut size={15} /> Sign out
         </button>

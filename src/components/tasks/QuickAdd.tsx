@@ -49,35 +49,35 @@ export default function QuickAdd({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="border border-indigo-300 rounded-lg p-3 bg-white shadow-sm">
+    <form onSubmit={handleSubmit} className="border border-indigo-300 rounded-xl p-3 bg-white shadow-[var(--shadow-card-hover)] ring-2 ring-indigo-500/10">
       <input
         ref={inputRef}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Task name"
-        className="w-full text-sm text-gray-900 placeholder-gray-400 focus:outline-none mb-2"
+        className="w-full text-sm text-slate-900 placeholder-slate-400 focus:outline-none mb-2.5"
         onKeyDown={(e) => { if (e.key === "Escape") onClose?.(); }}
       />
       <div className="flex items-center gap-2 flex-wrap">
         <div className="relative flex items-center">
-          <CalendarClock size={13} className="absolute left-2 text-gray-400 pointer-events-none" />
+          <CalendarClock size={13} className="absolute left-2.5 text-slate-400 pointer-events-none" />
           <input
             value={whenText}
             onChange={(e) => setWhenText(e.target.value)}
             placeholder="when… e.g. tomorrow"
-            className="text-xs border border-gray-200 rounded pl-7 pr-2 py-1 text-gray-600 focus:outline-none focus:ring-1 focus:ring-indigo-400 w-40"
+            className="text-xs border border-slate-200 rounded-lg pl-7 pr-2 py-1.5 text-slate-600 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 w-40 transition-all"
             onKeyDown={(e) => { if (e.key === "Escape") onClose?.(); }}
           />
         </div>
         {whenText.trim() && (
-          <span className={`text-xs ${parsedDate ? "text-green-600" : "text-gray-400"}`}>
+          <span className={`text-xs font-medium ${parsedDate ? "text-emerald-600" : "text-slate-400"}`}>
             {parsedDate ? `→ ${format(parsedDate, "EEE MMM d")}` : "no date"}
           </span>
         )}
         <select
           value={priority}
           onChange={(e) => setPriority(Number(e.target.value))}
-          className={`text-xs border border-gray-200 rounded px-2 py-1 focus:outline-none focus:ring-1 focus:ring-indigo-400 ${PRIORITY_COLORS[priority]}`}
+          className={`text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 transition-all ${PRIORITY_COLORS[priority]}`}
         >
           <option value={1}>Urgent</option>
           <option value={2}>High</option>
@@ -85,13 +85,13 @@ export default function QuickAdd({
           <option value={4}>No priority</option>
         </select>
         <div className="flex-1" />
-        <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1">
+        <button type="button" onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100 transition-colors">
           <X size={14} />
         </button>
         <button
           type="submit"
           disabled={!title.trim() || loading}
-          className="flex items-center gap-1 px-3 py-1 bg-indigo-600 text-white text-xs rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+          className="flex items-center gap-1 px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 shadow-sm shadow-indigo-500/20 transition-colors"
         >
           <Plus size={12} /> Add task
         </button>

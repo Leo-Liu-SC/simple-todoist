@@ -41,38 +41,38 @@ export default function TaskCard({ task }: { task: Task }) {
       {...attributes}
       {...listeners}
       onClick={() => setSelectedTask(task)}
-      className={`bg-white border rounded-lg p-3 shadow-sm cursor-pointer hover:shadow transition-shadow ${
-        selectedTask?.id === task.id ? "border-indigo-400 ring-1 ring-indigo-200" : "border-gray-200"
+      className={`bg-white border rounded-xl p-3 cursor-pointer transition-all shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5 ${
+        selectedTask?.id === task.id ? "border-indigo-400 ring-2 ring-indigo-500/15" : "border-slate-200"
       }`}
     >
       <div className="flex items-start gap-2">
         {task.priority < 4 && (
           <span className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${PRIORITY_COLORS[task.priority]}`} />
         )}
-        <span className={`text-sm flex-1 ${isDone ? "line-through text-gray-400" : "text-gray-800"}`}>
+        <span className={`text-sm flex-1 leading-snug ${isDone ? "line-through text-slate-400" : "text-slate-800"}`}>
           {task.title}
         </span>
       </div>
 
       {(task.labels.length > 0 || task.dueDate || task._count?.subtasks) && (
-        <div className="flex items-center gap-2 mt-2 flex-wrap">
+        <div className="flex items-center gap-2 mt-2.5 flex-wrap">
           {task.labels.map((l) => (
             <span
               key={l.id}
-              className="text-xs px-1.5 py-0.5 rounded-full font-medium"
-              style={{ backgroundColor: l.color + "22", color: l.color }}
+              className="text-[11px] px-2 py-0.5 rounded-full font-medium"
+              style={{ backgroundColor: l.color + "1a", color: l.color }}
             >
               {l.name}
             </span>
           ))}
           {task.dueDate && (
-            <span className={`text-xs flex items-center gap-1 ${duePast ? "text-red-500" : "text-gray-400"}`}>
+            <span className={`text-xs flex items-center gap-1 tabular-nums ${duePast ? "text-red-500 font-medium" : "text-slate-400"}`}>
               <Calendar size={10} />
               {formatDue(task.dueDate)}
             </span>
           )}
           {task._count?.subtasks ? (
-            <span className="text-xs text-gray-400 flex items-center">
+            <span className="text-xs text-slate-400 flex items-center gap-0.5">
               <ChevronRight size={10} />{task._count.subtasks}
             </span>
           ) : null}
