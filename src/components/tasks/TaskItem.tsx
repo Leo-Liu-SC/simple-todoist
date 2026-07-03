@@ -179,7 +179,7 @@ export default function TaskItem({
 
       {/* Col: due date (inline editable) */}
       {columns.dueDate && (
-        <span className="flex justify-end min-w-0">
+        <span className="flex justify-start min-w-0">
           {editing === "dueDate" ? (
             <input
               type="date"
@@ -207,7 +207,7 @@ export default function TaskItem({
 
       {/* Col: priority (inline editable) */}
       {columns.priority && (
-        <span className="flex justify-end min-w-0">
+        <span className="flex justify-start min-w-0">
           {editing === "priority" ? (
             <select
               autoFocus
@@ -238,7 +238,7 @@ export default function TaskItem({
 
       {/* Col: labels (pane-only edit) */}
       {columns.labels && (
-        <span className="flex items-center gap-1 justify-end overflow-hidden">
+        <span className="flex items-center gap-1 justify-start overflow-hidden">
           {task.labels.slice(0, 2).map((l) => (
             <span
               key={l.id}
