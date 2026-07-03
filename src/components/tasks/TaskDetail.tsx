@@ -1,21 +1,26 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
-import { format } from "date-fns";
-import { X, Trash2, Plus } from "lucide-react";
-import { useTask, updateTask, deleteTask, createTask } from "@/hooks/useTasks";
+import { format, addDays, startOfWeek, addWeeks } from "date-fns";
+import { X, Trash2, Plus, Check, Circle } from "lucide-react";
+import { useTask, updateTask, deleteTask } from "@/hooks/useTasks";
 import { useProjects } from "@/hooks/useProjects";
 import { useLabels } from "@/hooks/useLabels";
 import RichTextEditor from "@/components/editor/RichTextEditor";
 import QuickAdd from "./QuickAdd";
 import SubtaskTree from "./SubtaskTree";
 import { useTaskContext } from "@/lib/TaskContext";
+import { useToast } from "@/lib/ToastContext";
+import { PRIORITIES, STATUSES } from "@/lib/taskMeta";
 
-const PRIORITY_OPTIONS = [
-  { value: 1, label: "Urgent", color: "text-red-500" },
-  { value: 2, label: "High", color: "text-orange-500" },
-  { value: 3, label: "Medium", color: "text-blue-500" },
-  { value: 4, label: "No priority", color: "text-gray-400" },
-];
+// Quick due-date chips for the detail panel.
+function dueChips() {
+  const today = new Date();
+  return [
+    { label: "Today", date: today },
+    { label: "Tomorrow", date: addDays(today, 1) },
+    { label: "Next week", date: addWeeks(startOfWeek(today, { weekStartsOn: 1 }), 1) },
+  ];
+}
 
 export default function TaskDetail({
   taskId,
@@ -30,9 +35,12 @@ export default function TaskDetail({
   const { projects } = useProjects();
   const { labels } = useLabels();
   const { setSelectedTask } = useTaskContext();
+  const toast = useToast();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
+  const [savedFlash, setSavedFlash] = useState(false);
+  const [descSaved, setDescSaved] = useState(false);
   const [showSubtaskAdd, setShowSubtaskAdd] = useState(false);
 
   useEffect(() => {
@@ -47,6 +55,8 @@ export default function TaskDetail({
     await updateTask(taskId, patch as Parameters<typeof updateTask>[1]);
     await mutate();
     setSaving(false);
+    setSavedFlash(true);
+    setTimeout(() => setSavedFlash(false), 1500);
   }, [taskId, mutate]);
 
   async function handleTitleBlur() {
@@ -62,13 +72,44 @@ export default function TaskDetail({
   async function handleDescriptionBlur() {
     if (task && description !== (task.description ?? "")) {
       await save({ description });
+      setDescSaved(true);
+      setTimeout(() => setDescSaved(false), 2000);
     }
   }
 
   async function handleDelete() {
-    if (confirm("Delete this task?")) {
-      await deleteTask(taskId);
-      onDeleted();
+    // Optimistic delete with an undo toast instead of a blocking confirm().
+    if (!task) return;
+    const snapshot = {
+      title: task.title,
+      description: task.description ?? undefined,
+      dueDate: task.dueDate ?? undefined,
+      priority: task.priority,
+      status: task.status,
+      projectId: task.projectId ?? null,
+      labelIds: task.labels.map((l) => l.id),
+    };
+    await deleteTask(taskId);
+    onDeleted();
+    toast.show("Task deleted", {
+      actionLabel: "Undo",
+      onAction: async () => {
+        const { createTask } = await import("@/hooks/useTasks");
+        await createTask({ ...snapshot } as never);
+      },
+    });
+  }
+
+  async function toggleComplete() {
+    if (!task) return;
+    const prev = task.status;
+    const next = task.status === "done" ? "todo" : "done";
+    await save({ status: next });
+    if (next === "done") {
+      toast.show("Task completed", {
+        actionLabel: "Undo",
+        onAction: () => save({ status: prev }),
+      });
     }
   }
 
@@ -86,11 +127,25 @@ export default function TaskDetail({
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200/80">
-        <span className={`text-xs font-medium flex items-center gap-1.5 ${saving ? "text-indigo-500" : "text-slate-400"}`}>
-          {saving && <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />}
-          {saving ? "Saving…" : "Task detail"}
-        </span>
-        <div className="flex items-center gap-1">
+        <button
+          onClick={toggleComplete}
+          className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-colors ${
+            task.status === "done"
+              ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+              : "bg-white border-slate-200 text-slate-600 hover:border-emerald-300 hover:text-emerald-700"
+          }`}
+        >
+          {task.status === "done" ? <Check size={14} /> : <Circle size={14} />}
+          {task.status === "done" ? "Completed" : "Mark complete"}
+        </button>
+        <div className="flex items-center gap-2">
+          <span className={`text-xs font-medium flex items-center gap-1.5 transition-opacity ${saving || savedFlash ? "opacity-100" : "opacity-0"} ${saving ? "text-indigo-500" : "text-emerald-500"}`}>
+            {saving ? (
+              <><span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />Saving…</>
+            ) : (
+              <><Check size={12} />Saved</>
+            )}
+          </span>
           <button onClick={handleDelete} className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors">
             <Trash2 size={15} />
           </button>
@@ -129,19 +184,10 @@ export default function TaskDetail({
               onChange={(e) => save({ priority: Number(e.target.value) })}
               className="w-full border border-slate-200 rounded-lg px-2.5 py-2 text-sm text-slate-700 bg-slate-50/50 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 transition-all"
             >
-              {PRIORITY_OPTIONS.map((p) => (
+              {PRIORITIES.map((p) => (
                 <option key={p.value} value={p.value}>{p.label}</option>
               ))}
             </select>
-          </div>
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Due date</label>
-            <input
-              type="date"
-              value={task.dueDate ? format(new Date(task.dueDate), "yyyy-MM-dd") : ""}
-              onChange={(e) => save({ dueDate: e.target.value || null })}
-              className="w-full border border-slate-200 rounded-lg px-2.5 py-2 text-sm text-slate-700 bg-slate-50/50 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 transition-all"
-            />
           </div>
           <div>
             <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Status</label>
@@ -150,9 +196,39 @@ export default function TaskDetail({
               onChange={(e) => save({ status: e.target.value })}
               className="w-full border border-slate-200 rounded-lg px-2.5 py-2 text-sm text-slate-700 bg-slate-50/50 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 transition-all"
             >
-              <option value="todo">To do</option>
-              <option value="done">Done</option>
+              {STATUSES.map((s) => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
             </select>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Due date</label>
+          <div className="flex items-center gap-2 flex-wrap">
+            <input
+              type="date"
+              value={task.dueDate ? format(new Date(task.dueDate), "yyyy-MM-dd") : ""}
+              onChange={(e) => save({ dueDate: e.target.value || null })}
+              className="border border-slate-200 rounded-lg px-2.5 py-2 text-sm text-slate-700 bg-slate-50/50 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 transition-all"
+            />
+            {dueChips().map((c) => (
+              <button
+                key={c.label}
+                onClick={() => save({ dueDate: c.date.toISOString() })}
+                className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:border-indigo-300 hover:text-indigo-600 hover:bg-indigo-50/50 transition-colors"
+              >
+                {c.label}
+              </button>
+            ))}
+            {task.dueDate && (
+              <button
+                onClick={() => save({ dueDate: null })}
+                className="text-xs px-2 py-1.5 rounded-lg text-slate-400 hover:text-red-500 transition-colors"
+              >
+                Clear
+              </button>
+            )}
           </div>
         </div>
 
@@ -180,7 +256,12 @@ export default function TaskDetail({
         )}
 
         <div>
-          <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Description</label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Description</label>
+            <span className={`text-[11px] font-medium flex items-center gap-1 text-emerald-500 transition-opacity ${descSaved ? "opacity-100" : "opacity-0"}`}>
+              <Check size={11} /> Saved
+            </span>
+          </div>
           <div onBlur={handleDescriptionBlur}>
             <RichTextEditor content={description} onChange={handleDescriptionChange} />
           </div>

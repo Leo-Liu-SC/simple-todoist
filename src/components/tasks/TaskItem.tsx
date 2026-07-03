@@ -5,21 +5,8 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Task, ColumnConfig } from "@/lib/types";
 import { updateTask } from "@/hooks/useTasks";
-
-const PRIORITY_COLORS: Record<number, string> = {
-  1: "bg-red-500",
-  2: "bg-orange-500",
-  3: "bg-blue-500",
-  4: "bg-gray-200",
-};
-
-// Border color for the uncompleted checkbox ring, tinted by priority.
-const PRIORITY_RING: Record<number, string> = {
-  1: "border-red-400 hover:border-red-500",
-  2: "border-orange-400 hover:border-orange-500",
-  3: "border-blue-400 hover:border-blue-500",
-  4: "border-slate-300 hover:border-slate-400",
-};
+import { PRIORITY_BY_VALUE } from "@/lib/taskMeta";
+import { useToast } from "@/lib/ToastContext";
 
 function formatDue(date: string) {
   const d = new Date(date);
@@ -44,13 +31,24 @@ export default function TaskItem({
   const {
     attributes, listeners, setNodeRef, transform, transition, isDragging,
   } = useSortable({ id: task.id, disabled: !sortable });
+  const toast = useToast();
+
+  const isDone = task.status === "done";
+  const prio = PRIORITY_BY_VALUE[task.priority];
 
   async function toggleDone(e: React.MouseEvent) {
     e.stopPropagation();
-    await updateTask(task.id, { status: task.status === "done" ? "todo" : "done" });
+    const prev = task.status;
+    const next = isDone ? "todo" : "done";
+    await updateTask(task.id, { status: next });
+    if (next === "done") {
+      toast.show("Task completed", {
+        actionLabel: "Undo",
+        onAction: () => updateTask(task.id, { status: prev }),
+      });
+    }
   }
 
-  const isDone = task.status === "done";
   const duePast = task.dueDate && !isDone && isPast(new Date(task.dueDate)) && !isToday(new Date(task.dueDate));
 
   const style = sortable
@@ -62,10 +60,11 @@ export default function TaskItem({
       ref={sortable ? setNodeRef : undefined}
       style={style}
       onClick={() => onSelect(task)}
-      className={`flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors border-b border-slate-100 last:border-0 group ${
-        selected ? "bg-indigo-50/70" : "hover:bg-slate-50"
+      className={`relative flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors border-b border-slate-100 last:border-0 group ${
+        selected ? "bg-indigo-50/70" : duePast ? "bg-red-50/40 hover:bg-red-50/70" : "hover:bg-slate-50"
       }`}
     >
+      {duePast && <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-red-400" />}
       {sortable && (
         <button
           {...attributes}
@@ -80,7 +79,7 @@ export default function TaskItem({
       <button
         onClick={toggleDone}
         className={`flex-shrink-0 w-[18px] h-[18px] rounded-full border-2 transition-all flex items-center justify-center ${
-          isDone ? "border-indigo-500 bg-indigo-500" : `bg-transparent ${PRIORITY_RING[task.priority]}`
+          isDone ? "border-indigo-500 bg-indigo-500" : `bg-transparent ${prio.ring}`
         }`}
         title={isDone ? "Mark as to-do" : "Mark as done"}
       >
@@ -92,6 +91,11 @@ export default function TaskItem({
       </button>
 
       <span className={`flex-1 text-sm min-w-0 truncate ${isDone ? "line-through text-slate-400" : "text-slate-700"}`}>
+        {task.status === "doing" && !isDone && (
+          <span className="mr-2 align-middle text-[10px] font-semibold text-amber-600 bg-amber-100 rounded px-1.5 py-0.5 uppercase tracking-wide">
+            Doing
+          </span>
+        )}
         {task.title}
         {task._count?.subtasks ? (
           <span className="ml-2 inline-flex items-center gap-0.5 text-xs text-slate-400 align-middle">
@@ -126,7 +130,7 @@ export default function TaskItem({
         )}
 
         {columns.priority && task.priority < 4 && (
-          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${PRIORITY_COLORS[task.priority]}`} />
+          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${prio.dot}`} title={prio.label} />
         )}
       </div>
     </div>

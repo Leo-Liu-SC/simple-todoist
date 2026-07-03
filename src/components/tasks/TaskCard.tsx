@@ -5,13 +5,9 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Task } from "@/lib/types";
 import { useTaskContext } from "@/lib/TaskContext";
-
-const PRIORITY_COLORS: Record<number, string> = {
-  1: "bg-red-500",
-  2: "bg-orange-500",
-  3: "bg-blue-500",
-  4: "bg-gray-200",
-};
+import { updateTask } from "@/hooks/useTasks";
+import { PRIORITY_BY_VALUE } from "@/lib/taskMeta";
+import { useToast } from "@/lib/ToastContext";
 
 function formatDue(date: string) {
   const d = new Date(date);
@@ -24,9 +20,24 @@ export default function TaskCard({ task }: { task: Task }) {
   const { selectedTask, setSelectedTask } = useTaskContext();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: task.id });
+  const toast = useToast();
 
   const isDone = task.status === "done";
+  const prio = PRIORITY_BY_VALUE[task.priority];
   const duePast = task.dueDate && !isDone && isPast(new Date(task.dueDate)) && !isToday(new Date(task.dueDate));
+
+  async function toggleDone(e: React.MouseEvent) {
+    e.stopPropagation();
+    const prev = task.status;
+    const next = isDone ? "todo" : "done";
+    await updateTask(task.id, { status: next });
+    if (next === "done") {
+      toast.show("Task completed", {
+        actionLabel: "Undo",
+        onAction: () => updateTask(task.id, { status: prev }),
+      });
+    }
+  }
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -46,9 +57,20 @@ export default function TaskCard({ task }: { task: Task }) {
       }`}
     >
       <div className="flex items-start gap-2">
-        {task.priority < 4 && (
-          <span className={`mt-1 w-2 h-2 rounded-full flex-shrink-0 ${PRIORITY_COLORS[task.priority]}`} />
-        )}
+        <button
+          onClick={toggleDone}
+          onPointerDown={(e) => e.stopPropagation()}
+          className={`mt-0.5 flex-shrink-0 w-[16px] h-[16px] rounded-full border-2 transition-all flex items-center justify-center ${
+            isDone ? "border-indigo-500 bg-indigo-500" : `bg-transparent ${prio.ring}`
+          }`}
+          title={isDone ? "Mark as to-do" : "Mark as done"}
+        >
+          {isDone && (
+            <svg className="w-2 h-2 text-white" fill="none" viewBox="0 0 10 10">
+              <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          )}
+        </button>
         <span className={`text-sm flex-1 leading-snug ${isDone ? "line-through text-slate-400" : "text-slate-800"}`}>
           {task.title}
         </span>

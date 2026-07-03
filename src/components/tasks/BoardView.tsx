@@ -7,20 +7,15 @@ import {
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useTasks, updateTask } from "@/hooks/useTasks";
 import { TaskFilters, Task, Status } from "@/lib/types";
+import { STATUSES } from "@/lib/taskMeta";
 import TaskCard from "./TaskCard";
 
-const COLUMNS: { status: Status; label: string }[] = [
-  { status: "todo", label: "To do" },
-  { status: "done", label: "Done" },
-];
-
-function Column({ status, label, tasks }: { status: Status; label: string; tasks: Task[] }) {
+function Column({ status, label, dot, tasks }: { status: Status; label: string; dot: string; tasks: Task[] }) {
   const { setNodeRef, isOver } = useDroppable({ id: `col-${status}` });
-  const dotColor = status === "done" ? "bg-emerald-500" : "bg-slate-400";
   return (
     <div className="flex flex-col w-72 flex-shrink-0">
       <div className="flex items-center gap-2 px-2.5 pb-2.5">
-        <span className={`w-2 h-2 rounded-full ${dotColor}`} />
+        <span className={`w-2 h-2 rounded-full ${dot}`} />
         <span className="text-sm font-semibold text-slate-700">{label}</span>
         <span className="text-xs text-slate-400 tabular-nums bg-slate-100 rounded-full px-1.5 py-0.5">{tasks.length}</span>
       </div>
@@ -83,15 +78,15 @@ export default function BoardView({ filters }: { filters: TaskFilters }) {
   }
 
   if (isLoading) {
-    return <div className="flex items-center justify-center py-16 text-sm text-gray-400">Loading…</div>;
+    return <div className="flex items-center justify-center py-16 text-sm text-slate-400">Loading…</div>;
   }
 
   return (
     <div className="flex-1 overflow-x-auto overflow-y-hidden p-4">
       <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
         <div className="flex gap-4 h-full">
-          {COLUMNS.map((c) => (
-            <Column key={c.status} status={c.status} label={c.label} tasks={columnTasks(c.status)} />
+          {STATUSES.map((c) => (
+            <Column key={c.value} status={c.value} label={c.label} dot={c.dot} tasks={columnTasks(c.value)} />
           ))}
         </div>
       </DndContext>

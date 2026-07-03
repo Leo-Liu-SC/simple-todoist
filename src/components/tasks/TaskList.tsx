@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Plus, Settings2, List as ListIcon, Columns3, Search } from "lucide-react";
+import { Plus, Settings2, List as ListIcon, Columns3, Search, ArrowUpDown, Check } from "lucide-react";
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
   type DragEndEvent,
@@ -9,11 +9,18 @@ import {
   SortableContext, verticalListSortingStrategy, arrayMove,
 } from "@dnd-kit/sortable";
 import { useTasks, reorderTasks } from "@/hooks/useTasks";
-import { TaskFilters, Task, ColumnConfig } from "@/lib/types";
+import { TaskFilters, Task, ColumnConfig, SortMode } from "@/lib/types";
 import { useTaskContext } from "@/lib/TaskContext";
 import TaskItem from "./TaskItem";
 import QuickAdd from "./QuickAdd";
 import BoardView from "./BoardView";
+import { PRIORITIES } from "@/lib/taskMeta";
+
+const SORT_OPTIONS: { value: SortMode; label: string }[] = [
+  { value: "manual", label: "Manual (drag)" },
+  { value: "dueDate", label: "Due date" },
+  { value: "priority", label: "Priority" },
+];
 
 const DEFAULT_COLUMNS: ColumnConfig = { priority: true, dueDate: true, labels: true, project: false };
 
@@ -46,17 +53,38 @@ export default function TaskList({
   const [columns, setColumns] = useColumnConfig(`columns-${projectId ?? filters.view ?? "all"}`);
   const [search, setSearch] = useState("");
   const [orderedIds, setOrderedIds] = useState<number[]>([]);
-  const viewKey = `viewmode-${projectId ?? filters.view ?? "all"}`;
+  const [showSortMenu, setShowSortMenu] = useState(false);
+  const scopeKey = `${projectId ?? filters.view ?? "all"}`;
+  const viewKey = `viewmode-${scopeKey}`;
+  const sortKey = `sort-${scopeKey}`;
+  const completedKey = `showCompleted-${scopeKey}`;
   const [viewMode, setViewMode] = useState<"list" | "board">("list");
+  const [sortMode, setSortMode] = useState<SortMode>("manual");
+  const [showCompleted, setShowCompleted] = useState(true);
 
   useEffect(() => {
     const stored = localStorage.getItem(viewKey);
     if (stored === "board" || stored === "list") setViewMode(stored);
-  }, [viewKey]);
+    const s = localStorage.getItem(sortKey);
+    if (s === "manual" || s === "dueDate" || s === "priority") setSortMode(s);
+    const c = localStorage.getItem(completedKey);
+    if (c === "false") setShowCompleted(false);
+  }, [viewKey, sortKey, completedKey]);
 
   function setView(mode: "list" | "board") {
     setViewMode(mode);
     localStorage.setItem(viewKey, mode);
+  }
+  function setSort(mode: SortMode) {
+    setSortMode(mode);
+    localStorage.setItem(sortKey, mode);
+    setShowSortMenu(false);
+  }
+  function toggleCompleted() {
+    setShowCompleted((v) => {
+      localStorage.setItem(completedKey, String(!v));
+      return !v;
+    });
   }
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
@@ -70,12 +98,32 @@ export default function TaskList({
   const ordered = orderedIds.map((id) => byId.get(id)).filter(Boolean) as Task[];
   const baseList = ordered.length === tasks.length ? ordered : tasks;
 
-  const filtered = search
+  const searched = search
     ? baseList.filter((t) => t.title.toLowerCase().includes(search.toLowerCase()))
     : baseList;
 
-  // Reordering allowed only when not filtering by search text.
-  const canReorder = !search;
+  // Hide or keep completed tasks, then apply the chosen sort. Completed
+  // tasks always sink to the bottom regardless of sort mode.
+  const visible = showCompleted ? searched : searched.filter((t) => t.status !== "done");
+  const completedCount = searched.filter((t) => t.status === "done").length;
+
+  const filtered = [...visible].sort((a, b) => {
+    const aDone = a.status === "done" ? 1 : 0;
+    const bDone = b.status === "done" ? 1 : 0;
+    if (aDone !== bDone) return aDone - bDone;
+    if (sortMode === "dueDate") {
+      const at = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+      const bt = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+      return at - bt;
+    }
+    if (sortMode === "priority") {
+      return a.priority - b.priority;
+    }
+    return 0; // manual: keep baseList order
+  });
+
+  // Reordering allowed only in manual sort with no active search.
+  const canReorder = !search && sortMode === "manual";
 
   async function handleDragEnd(e: DragEndEvent) {
     const { active, over } = e;
@@ -88,7 +136,7 @@ export default function TaskList({
     await reorderTasks(next);
   }
 
-  const activeCount = filtered.filter((t) => t.status !== "done").length;
+  const activeCount = searched.filter((t) => t.status !== "done").length;
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -124,6 +172,45 @@ export default function TaskList({
             <Columns3 size={15} />
           </button>
         </div>
+        {viewMode === "list" && (
+          <div className="relative">
+            <button
+              onClick={() => setShowSortMenu(!showSortMenu)}
+              className={`p-1.5 rounded-lg transition-colors ${sortMode !== "manual" ? "text-indigo-600 bg-indigo-50" : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"}`}
+              title="Sort tasks"
+            >
+              <ArrowUpDown size={16} />
+            </button>
+            {showSortMenu && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setShowSortMenu(false)} />
+                <div className="absolute right-0 top-9 z-20 bg-white border border-slate-200 rounded-xl shadow-[var(--shadow-pop)] py-2 w-52">
+                  <p className="px-3 pb-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Sort by</p>
+                  {SORT_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => setSort(opt.value)}
+                      className="flex items-center justify-between w-full px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+                    >
+                      {opt.label}
+                      {sortMode === opt.value && <Check size={14} className="text-indigo-600" />}
+                    </button>
+                  ))}
+                  <div className="my-1.5 border-t border-slate-100" />
+                  <button
+                    onClick={toggleCompleted}
+                    className="flex items-center justify-between w-full px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+                  >
+                    Show completed
+                    <span className={`w-8 h-4.5 rounded-full relative transition-colors ${showCompleted ? "bg-indigo-500" : "bg-slate-300"}`}>
+                      <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-all ${showCompleted ? "left-4" : "left-0.5"}`} />
+                    </span>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
         <div className="relative">
           <button
             onClick={() => setShowColumnMenu(!showColumnMenu)}
@@ -135,7 +222,7 @@ export default function TaskList({
           {showColumnMenu && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setShowColumnMenu(false)} />
-              <div className="absolute right-0 top-9 z-20 bg-white border border-slate-200 rounded-xl shadow-[var(--shadow-pop)] py-2 w-44">
+              <div className="absolute right-0 top-9 z-20 bg-white border border-slate-200 rounded-xl shadow-[var(--shadow-pop)] py-2 w-48">
                 <p className="px-3 pb-1.5 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Columns</p>
                 {(Object.keys(columns) as (keyof ColumnConfig)[]).map((col) => (
                   <label key={col} className="flex items-center gap-2.5 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50 cursor-pointer">
@@ -147,6 +234,14 @@ export default function TaskList({
                     />
                     {col === "dueDate" ? "Due date" : col.charAt(0).toUpperCase() + col.slice(1)}
                   </label>
+                ))}
+                <div className="my-1.5 border-t border-slate-100" />
+                <p className="px-3 pb-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Priority</p>
+                {PRIORITIES.filter((p) => p.value < 4).map((p) => (
+                  <div key={p.value} className="flex items-center gap-2.5 px-3 py-1 text-xs text-slate-500">
+                    <span className={`w-2 h-2 rounded-full ${p.dot}`} />
+                    {p.label}
+                  </div>
                 ))}
               </div>
             </>
@@ -202,7 +297,6 @@ export default function TaskList({
             <QuickAdd
               projectId={projectId}
               onClose={() => setShowQuickAdd(false)}
-              onCreated={() => setShowQuickAdd(false)}
             />
           </div>
         ) : (
@@ -214,6 +308,15 @@ export default function TaskList({
               <Plus size={16} /> Add task
             </button>
           </div>
+        )}
+
+        {!showCompleted && completedCount > 0 && (
+          <button
+            onClick={toggleCompleted}
+            className="mx-4 mb-3 text-xs text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            {completedCount} completed {completedCount === 1 ? "task" : "tasks"} hidden — show
+          </button>
         )}
       </div>
       )}

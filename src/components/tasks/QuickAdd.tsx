@@ -46,6 +46,9 @@ export default function QuickAdd({
     setPriority(4);
     setLoading(false);
     onCreated?.();
+    // Keep the form open and refocus so you can add several tasks in a row
+    // (press Enter to add each; Escape to close).
+    inputRef.current?.focus();
   }
 
   return (

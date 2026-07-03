@@ -1,5 +1,6 @@
 export type Priority = 1 | 2 | 3 | 4;
-export type Status = "todo" | "done";
+export type Status = "todo" | "doing" | "done";
+export type SortMode = "manual" | "dueDate" | "priority";
 
 export interface Label {
   id: number;
