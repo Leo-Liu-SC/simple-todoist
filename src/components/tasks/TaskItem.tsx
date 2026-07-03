@@ -1,7 +1,7 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { format, isToday, isTomorrow, isPast } from "date-fns";
-import { ChevronRight, Calendar, GripVertical, Flag } from "lucide-react";
+import { ChevronRight, Calendar, GripVertical, Flag, Check } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Task, ColumnConfig, Priority, Status } from "@/lib/types";
@@ -16,7 +16,7 @@ function formatDue(date: string) {
   return format(d, "MMM d");
 }
 
-type EditField = null | "title" | "priority" | "status" | "dueDate";
+type EditField = null | "priority" | "status" | "dueDate";
 
 export default function TaskItem({
   task,
@@ -37,16 +37,6 @@ export default function TaskItem({
   const toast = useToast();
 
   const [editing, setEditing] = useState<EditField>(null);
-  const [titleDraft, setTitleDraft] = useState(task.title);
-  const titleRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (editing === "title") {
-      setTitleDraft(task.title);
-      titleRef.current?.focus();
-      titleRef.current?.select();
-    }
-  }, [editing, task.title]);
 
   const isDone = task.status === "done";
   const prio = PRIORITY_BY_VALUE[task.priority];
@@ -66,19 +56,17 @@ export default function TaskItem({
     }
   }
 
-  async function saveTitle() {
-    setEditing(null);
-    if (titleDraft.trim() && titleDraft !== task.title) {
-      await updateTask(task.id, { title: titleDraft.trim() });
-    }
-  }
-
   // Open a field's inline editor (single click on the value).
   function startEdit(field: EditField) {
     return (e: React.MouseEvent) => {
       e.stopPropagation();
       setEditing(field);
     };
+  }
+
+  async function setStatus(value: Status) {
+    setEditing(null);
+    await updateTask(task.id, { status: value });
   }
 
   const cellSelect =
@@ -128,65 +116,54 @@ export default function TaskItem({
         )}
       </button>
 
-      {/* Col: status (inline editable, leading) */}
+      {/* Col: status (leading) — click opens a popover menu of statuses */}
       {columns.status && (
-        <span className="flex justify-start min-w-0">
-          {editing === "status" ? (
-            <select
-              autoFocus
-              defaultValue={task.status}
-              onClick={(e) => e.stopPropagation()}
-              onBlur={() => setEditing(null)}
-              onChange={async (e) => {
-                await updateTask(task.id, { status: e.target.value as Status });
-                setEditing(null);
-              }}
-              className={cellSelect}
-            >
-              {STATUSES.map((s) => (
-                <option key={s.value} value={s.value}>{s.label}</option>
-              ))}
-            </select>
-          ) : (
-            <button
-              onClick={startEdit("status")}
-              className={`text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full hover:ring-2 hover:ring-slate-200 ${stat.pill}`}
-              title="Click to change status"
-            >
-              {stat.label}
-            </button>
+        <span className="relative flex justify-start min-w-0">
+          <button
+            onClick={startEdit("status")}
+            className={`text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full hover:ring-2 hover:ring-slate-200 ${stat.pill}`}
+            title="Click to change status"
+          >
+            {stat.label}
+          </button>
+          {editing === "status" && (
+            <>
+              <div className="fixed inset-0 z-20" onClick={(e) => { e.stopPropagation(); setEditing(null); }} />
+              <div
+                className="absolute left-0 top-7 z-30 bg-white border border-slate-200 rounded-xl shadow-[var(--shadow-pop)] py-1.5 w-44"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <p className="px-3 pb-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Set status</p>
+                {STATUSES.map((s) => (
+                  <button
+                    key={s.value}
+                    onClick={() => setStatus(s.value)}
+                    className="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+                  >
+                    <span className={`w-2 h-2 rounded-full ${s.dot}`} />
+                    <span className="flex-1 text-left">{s.label}</span>
+                    {task.status === s.value && <Check size={14} className="text-indigo-600" />}
+                  </button>
+                ))}
+              </div>
+            </>
           )}
         </span>
       )}
 
-      {/* Col: title (inline editable) */}
-      {editing === "title" ? (
-        <input
-          ref={titleRef}
-          value={titleDraft}
-          onChange={(e) => setTitleDraft(e.target.value)}
-          onBlur={saveTitle}
-          onClick={(e) => e.stopPropagation()}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") saveTitle();
-            if (e.key === "Escape") { setTitleDraft(task.title); setEditing(null); }
-          }}
-          className="text-sm text-slate-800 border border-indigo-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 min-w-0"
-        />
-      ) : (
-        <span
-          onClick={startEdit("title")}
-          className={`text-sm min-w-0 truncate cursor-text rounded px-1 -mx-1 hover:bg-slate-100/70 ${isDone ? "line-through text-slate-400" : "text-slate-700"}`}
-          title="Click to edit · double-click row for details"
-        >
-          {task.title}
-          {task._count?.subtasks ? (
-            <span className="ml-2 inline-flex items-center gap-0.5 text-xs text-slate-400 align-middle">
-              <ChevronRight size={11} />{task._count.subtasks}
-            </span>
-          ) : null}
-        </span>
-      )}
+      {/* Col: title (click opens detail pane) */}
+      <span
+        onClick={(e) => { e.stopPropagation(); onSelect(task); }}
+        className={`text-sm min-w-0 truncate cursor-pointer rounded px-1 -mx-1 hover:bg-slate-100/70 ${isDone ? "line-through text-slate-400" : "text-slate-700"}`}
+        title="Click to open details"
+      >
+        {task.title}
+        {task._count?.subtasks ? (
+          <span className="ml-2 inline-flex items-center gap-0.5 text-xs text-slate-400 align-middle">
+            <ChevronRight size={11} />{task._count.subtasks}
+          </span>
+        ) : null}
+      </span>
 
       {/* Col: project/list (pane-only edit) */}
       {columns.project && (

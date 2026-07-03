@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Plus, Settings2, List as ListIcon, Columns3, Search, ArrowUpDown, Check } from "lucide-react";
+import { Plus, Settings2, List as ListIcon, Columns3, Search, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
   type DragEndEvent,
@@ -9,20 +9,39 @@ import {
   SortableContext, verticalListSortingStrategy, arrayMove,
 } from "@dnd-kit/sortable";
 import { useTasks, reorderTasks } from "@/hooks/useTasks";
-import { TaskFilters, Task, ColumnConfig, SortMode } from "@/lib/types";
+import { TaskFilters, Task, ColumnConfig, SortKey, SortRule } from "@/lib/types";
 import { useTaskContext } from "@/lib/TaskContext";
 import TaskItem from "./TaskItem";
 import QuickAdd from "./QuickAdd";
 import BoardView from "./BoardView";
-import { PRIORITIES, gridTemplate } from "@/lib/taskMeta";
-
-const SORT_OPTIONS: { value: SortMode; label: string }[] = [
-  { value: "manual", label: "Manual (drag)" },
-  { value: "dueDate", label: "Due date" },
-  { value: "priority", label: "Priority" },
-];
+import { PRIORITIES, gridTemplate, statusRank } from "@/lib/taskMeta";
 
 const DEFAULT_COLUMNS: ColumnConfig = { priority: true, dueDate: true, labels: true, project: false, status: true };
+
+// Clickable column header with sort direction + precedence indicator.
+function SortHeader({
+  label, sortKey, rules, onToggle, align,
+}: {
+  label: string;
+  sortKey: SortKey;
+  rules: SortRule[];
+  onToggle: (k: SortKey) => void;
+  align: "left" | "right";
+}) {
+  const idx = rules.findIndex((r) => r.key === sortKey);
+  const rule = idx >= 0 ? rules[idx] : null;
+  return (
+    <button
+      onClick={() => onToggle(sortKey)}
+      className={`flex items-center gap-1 ${align === "right" ? "justify-end" : "justify-start"} hover:text-slate-700 transition-colors ${rule ? "text-indigo-600" : ""}`}
+      title="Click to sort · click again to reverse · again to remove"
+    >
+      {label}
+      {rule && (rule.dir === "asc" ? <ArrowUp size={11} /> : <ArrowDown size={11} />)}
+      {rule && rules.length > 1 && <span className="text-[9px] font-bold">{idx + 1}</span>}
+    </button>
+  );
+}
 
 function useColumnConfig(key: string): [ColumnConfig, (c: ColumnConfig) => void] {
   const [config, setConfig] = useState<ColumnConfig>(DEFAULT_COLUMNS);
@@ -58,17 +77,17 @@ export default function TaskList({
   const [showSortMenu, setShowSortMenu] = useState(false);
   const scopeKey = `${projectId ?? filters.view ?? "all"}`;
   const viewKey = `viewmode-${scopeKey}`;
-  const sortKey = `sort-${scopeKey}`;
+  const sortKey = `sortrules-${scopeKey}`;
   const completedKey = `showCompleted-${scopeKey}`;
   const [viewMode, setViewMode] = useState<"list" | "board">("list");
-  const [sortMode, setSortMode] = useState<SortMode>("manual");
+  const [sortRules, setSortRules] = useState<SortRule[]>([]);
   const [showCompleted, setShowCompleted] = useState(true);
 
   useEffect(() => {
     const stored = localStorage.getItem(viewKey);
     if (stored === "board" || stored === "list") setViewMode(stored);
     const s = localStorage.getItem(sortKey);
-    if (s === "manual" || s === "dueDate" || s === "priority") setSortMode(s);
+    if (s) { try { setSortRules(JSON.parse(s)); } catch { /* ignore */ } }
     const c = localStorage.getItem(completedKey);
     if (c === "false") setShowCompleted(false);
   }, [viewKey, sortKey, completedKey]);
@@ -77,16 +96,37 @@ export default function TaskList({
     setViewMode(mode);
     localStorage.setItem(viewKey, mode);
   }
-  function setSort(mode: SortMode) {
-    setSortMode(mode);
-    localStorage.setItem(sortKey, mode);
-    setShowSortMenu(false);
+  function persistSort(rules: SortRule[]) {
+    setSortRules(rules);
+    localStorage.setItem(sortKey, JSON.stringify(rules));
+  }
+  // Click a column header: asc → desc → remove. Stacks with existing keys
+  // (later clicks append, so the first-clicked column is the primary sort).
+  function toggleSort(key: SortKey) {
+    const existing = sortRules.find((r) => r.key === key);
+    if (!existing) {
+      persistSort([...sortRules, { key, dir: "asc" }]);
+    } else if (existing.dir === "asc") {
+      persistSort(sortRules.map((r) => (r.key === key ? { ...r, dir: "desc" } : r)));
+    } else {
+      persistSort(sortRules.filter((r) => r.key !== key));
+    }
+  }
+  function clearSort() {
+    persistSort([]);
   }
   function toggleCompleted() {
     setShowCompleted((v) => {
       localStorage.setItem(completedKey, String(!v));
       return !v;
     });
+  }
+
+  function sortValue(t: Task, key: SortKey): number {
+    if (key === "status") return statusRank(t.status);
+    if (key === "priority") return t.priority;
+    // dueDate: undated sinks to the end
+    return t.dueDate ? new Date(t.dueDate).getTime() : Infinity;
   }
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
@@ -110,22 +150,21 @@ export default function TaskList({
   const completedCount = searched.filter((t) => t.status === "done").length;
 
   const filtered = [...visible].sort((a, b) => {
+    // Completed tasks always sink to the bottom regardless of sort keys.
     const aDone = a.status === "done" ? 1 : 0;
     const bDone = b.status === "done" ? 1 : 0;
     if (aDone !== bDone) return aDone - bDone;
-    if (sortMode === "dueDate") {
-      const at = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
-      const bt = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
-      return at - bt;
+    // Apply each sort rule in precedence order.
+    for (const r of sortRules) {
+      const av = sortValue(a, r.key);
+      const bv = sortValue(b, r.key);
+      if (av !== bv) return r.dir === "asc" ? av - bv : bv - av;
     }
-    if (sortMode === "priority") {
-      return a.priority - b.priority;
-    }
-    return 0; // manual: keep baseList order
+    return 0; // no more keys: keep manual/base order
   });
 
-  // Reordering allowed only in manual sort with no active search.
-  const canReorder = !search && sortMode === "manual";
+  // Reordering allowed only when not searching and no active sort keys.
+  const canReorder = !search && sortRules.length === 0;
 
   async function handleDragEnd(e: DragEndEvent) {
     const { active, over } = e;
@@ -178,33 +217,37 @@ export default function TaskList({
           <div className="relative">
             <button
               onClick={() => setShowSortMenu(!showSortMenu)}
-              className={`p-1.5 rounded-lg transition-colors ${sortMode !== "manual" ? "text-indigo-600 bg-indigo-50" : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"}`}
-              title="Sort tasks"
+              className={`p-1.5 rounded-lg transition-colors ${sortRules.length > 0 ? "text-indigo-600 bg-indigo-50" : "text-slate-400 hover:text-slate-700 hover:bg-slate-100"}`}
+              title="Sort & display options"
             >
               <ArrowUpDown size={16} />
             </button>
             {showSortMenu && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setShowSortMenu(false)} />
-                <div className="absolute right-0 top-9 z-20 bg-white border border-slate-200 rounded-xl shadow-[var(--shadow-pop)] py-2 w-52">
-                  <p className="px-3 pb-1.5 text-[13px] font-semibold text-slate-400 uppercase tracking-wider">Sort by</p>
-                  {SORT_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.value}
-                      onClick={() => setSort(opt.value)}
-                      className="flex items-center justify-between w-full px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
-                    >
-                      {opt.label}
-                      {sortMode === opt.value && <Check size={14} className="text-indigo-600" />}
-                    </button>
-                  ))}
+                <div className="absolute right-0 top-9 z-20 bg-white border border-slate-200 rounded-xl shadow-[var(--shadow-pop)] py-2 w-60">
+                  <p className="px-3 pb-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Sort</p>
+                  {sortRules.length === 0 ? (
+                    <p className="px-3 py-1 text-xs text-slate-400">Click a column header to sort. Click more headers to combine.</p>
+                  ) : (
+                    <div className="px-3 py-1 space-y-1">
+                      {sortRules.map((r, i) => (
+                        <div key={r.key} className="flex items-center gap-2 text-sm text-slate-600">
+                          <span className="text-[11px] text-slate-400 w-3">{i + 1}</span>
+                          <span className="flex-1 capitalize">{r.key === "dueDate" ? "Due date" : r.key}</span>
+                          <span className="text-xs text-slate-400">{r.dir === "asc" ? "↑ asc" : "↓ desc"}</span>
+                        </div>
+                      ))}
+                      <button onClick={clearSort} className="text-xs text-indigo-600 hover:text-indigo-800 pt-1">Clear sort</button>
+                    </div>
+                  )}
                   <div className="my-1.5 border-t border-slate-100" />
                   <button
                     onClick={toggleCompleted}
                     className="flex items-center justify-between w-full px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
                   >
                     Show completed
-                    <span className={`w-8 h-4.5 rounded-full relative transition-colors ${showCompleted ? "bg-indigo-500" : "bg-slate-300"}`}>
+                    <span className={`w-8 h-[18px] rounded-full relative transition-colors ${showCompleted ? "bg-indigo-500" : "bg-slate-300"}`}>
                       <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-all ${showCompleted ? "left-4" : "left-0.5"}`} />
                     </span>
                   </button>
@@ -261,11 +304,11 @@ export default function TaskList({
             style={{ gridTemplateColumns: gridTemplate(columns) }}
           >
             <span />
-            {columns.status && <span>Status</span>}
+            {columns.status && <SortHeader label="Status" sortKey="status" rules={sortRules} onToggle={toggleSort} align="left" />}
             <span>Task</span>
             {columns.project && <span className="text-right">List</span>}
-            {columns.dueDate && <span className="text-right">Due</span>}
-            {columns.priority && <span className="text-right">Priority</span>}
+            {columns.dueDate && <SortHeader label="Due" sortKey="dueDate" rules={sortRules} onToggle={toggleSort} align="right" />}
+            {columns.priority && <SortHeader label="Priority" sortKey="priority" rules={sortRules} onToggle={toggleSort} align="right" />}
             {columns.labels && <span className="text-right">Labels</span>}
           </div>
         )}

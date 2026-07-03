@@ -2,6 +2,11 @@ export type Priority = 1 | 2 | 3 | 4;
 export type Status = "new" | "onme" | "delegated" | "blocked" | "notime" | "resultback" | "done";
 export type SortMode = "manual" | "dueDate" | "priority";
 
+// Multi-key sorting: a stack of {key, dir}. Order in the array = sort precedence.
+export type SortKey = "status" | "dueDate" | "priority";
+export type SortDir = "asc" | "desc";
+export interface SortRule { key: SortKey; dir: SortDir; }
+
 export interface Label {
   id: number;
   name: string;

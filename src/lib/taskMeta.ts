@@ -48,6 +48,12 @@ export const STATUSES: { value: Status; label: string; dot: string; pill: string
 // Default status for newly-created tasks.
 export const DEFAULT_STATUS: Status = "new";
 
+// Rank of a status for sorting (its position in STATUSES). Unknown → end.
+export function statusRank(value: string): number {
+  const i = STATUSES.findIndex((s) => s.value === value);
+  return i === -1 ? STATUSES.length : i;
+}
+
 const STATUS_MAP = Object.fromEntries(STATUSES.map((s) => [s.value, s])) as Record<Status, (typeof STATUSES)[number]>;
 
 // Safe lookup: unknown/legacy status values fall back to "new" so the UI
