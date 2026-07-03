@@ -128,6 +128,37 @@ export default function TaskItem({
         )}
       </button>
 
+      {/* Col: status (inline editable, leading) */}
+      {columns.status && (
+        <span className="flex justify-start min-w-0">
+          {editing === "status" ? (
+            <select
+              autoFocus
+              defaultValue={task.status}
+              onClick={(e) => e.stopPropagation()}
+              onBlur={() => setEditing(null)}
+              onChange={async (e) => {
+                await updateTask(task.id, { status: e.target.value as Status });
+                setEditing(null);
+              }}
+              className={cellSelect}
+            >
+              {STATUSES.map((s) => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
+            </select>
+          ) : (
+            <button
+              onClick={startEdit("status")}
+              className={`text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full hover:ring-2 hover:ring-slate-200 ${stat.pill}`}
+              title="Click to change status"
+            >
+              {stat.label}
+            </button>
+          )}
+        </span>
+      )}
+
       {/* Col: title (inline editable) */}
       {editing === "title" ? (
         <input
@@ -154,21 +185,6 @@ export default function TaskItem({
               <ChevronRight size={11} />{task._count.subtasks}
             </span>
           ) : null}
-        </span>
-      )}
-
-      {/* Col: labels (pane-only edit) */}
-      {columns.labels && (
-        <span className="flex items-center gap-1 justify-end overflow-hidden">
-          {task.labels.slice(0, 2).map((l) => (
-            <span
-              key={l.id}
-              className="text-[13px] px-2 py-0.5 rounded-full font-medium truncate max-w-[70px]"
-              style={{ backgroundColor: l.color + "1a", color: l.color }}
-            >
-              {l.name}
-            </span>
-          ))}
         </span>
       )}
 
@@ -243,34 +259,18 @@ export default function TaskItem({
         </span>
       )}
 
-      {/* Col: status (inline editable) */}
-      {columns.status && (
-        <span className="flex justify-end min-w-0">
-          {editing === "status" ? (
-            <select
-              autoFocus
-              defaultValue={task.status}
-              onClick={(e) => e.stopPropagation()}
-              onBlur={() => setEditing(null)}
-              onChange={async (e) => {
-                await updateTask(task.id, { status: e.target.value as Status });
-                setEditing(null);
-              }}
-              className={cellSelect}
+      {/* Col: labels (pane-only edit) */}
+      {columns.labels && (
+        <span className="flex items-center gap-1 justify-end overflow-hidden">
+          {task.labels.slice(0, 2).map((l) => (
+            <span
+              key={l.id}
+              className="text-[13px] px-2 py-0.5 rounded-full font-medium truncate max-w-[70px]"
+              style={{ backgroundColor: l.color + "1a", color: l.color }}
             >
-              {STATUSES.map((s) => (
-                <option key={s.value} value={s.value}>{s.label}</option>
-              ))}
-            </select>
-          ) : (
-            <button
-              onClick={startEdit("status")}
-              className={`text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full hover:ring-2 hover:ring-slate-200 ${stat.pill}`}
-              title="Click to change status"
-            >
-              {stat.label}
-            </button>
-          )}
+              {l.name}
+            </span>
+          ))}
         </span>
       )}
     </div>

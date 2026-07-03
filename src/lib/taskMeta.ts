@@ -1,23 +1,26 @@
 import { Priority, Status, ColumnConfig } from "./types";
 
-// Fixed widths (px) for each optional trailing column. Shared by the list
-// header row and every task row so a CSS grid keeps them aligned — empty
-// cells render where a task has no value for that column.
+// Fixed widths (px) for each optional column. Shared by the list header row
+// and every task row so a CSS grid keeps them aligned — empty cells render
+// where a task has no value for that column.
 export const COL_WIDTHS = {
-  labels: 150,
+  status: 118,
   project: 120,
   dueDate: 84,
   priority: 96,
-  status: 118,
+  labels: 150,
 } as const;
 
-// Build the grid-template-columns string: checkbox | title (flex) | active columns.
+// Column order in the row: checkbox | STATUS | task (flex) | project | due | priority | labels.
+// "status" sits before the flex title; the rest trail after it.
+export const LEADING_COLS = ["status"] as const;
+export const TRAILING_COLS = ["project", "dueDate", "priority", "labels"] as const;
+
+// Build the grid-template-columns string honoring the column order above.
 export function gridTemplate(columns: ColumnConfig): string {
-  const trailing = (Object.keys(COL_WIDTHS) as (keyof typeof COL_WIDTHS)[])
-    .filter((k) => columns[k])
-    .map((k) => `${COL_WIDTHS[k]}px`)
-    .join(" ");
-  return `18px minmax(0,1fr) ${trailing}`.trim();
+  const lead = LEADING_COLS.filter((k) => columns[k]).map((k) => `${COL_WIDTHS[k]}px`).join(" ");
+  const trail = TRAILING_COLS.filter((k) => columns[k]).map((k) => `${COL_WIDTHS[k]}px`).join(" ");
+  return [`18px`, lead, `minmax(0,1fr)`, trail].filter(Boolean).join(" ");
 }
 
 // Single source of truth for priority + status metadata, used across

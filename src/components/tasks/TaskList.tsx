@@ -261,12 +261,12 @@ export default function TaskList({
             style={{ gridTemplateColumns: gridTemplate(columns) }}
           >
             <span />
+            {columns.status && <span>Status</span>}
             <span>Task</span>
-            {columns.labels && <span className="text-right">Labels</span>}
             {columns.project && <span className="text-right">List</span>}
             {columns.dueDate && <span className="text-right">Due</span>}
             {columns.priority && <span className="text-right">Priority</span>}
-            {columns.status && <span className="text-right">Status</span>}
+            {columns.labels && <span className="text-right">Labels</span>}
           </div>
         )}
         {isLoading && (
