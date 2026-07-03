@@ -16,7 +16,7 @@ import QuickAdd from "./QuickAdd";
 import BoardView from "./BoardView";
 import { PRIORITIES, gridTemplate, statusRank } from "@/lib/taskMeta";
 
-const DEFAULT_COLUMNS: ColumnConfig = { priority: true, dueDate: true, labels: true, project: false, status: true };
+const DEFAULT_COLUMNS: ColumnConfig = { priority: true, dueDate: true, labels: true, project: true, status: true };
 
 // Clickable column header with sort direction + precedence indicator.
 function SortHeader({
@@ -305,8 +305,8 @@ export default function TaskList({
           >
             <span />
             {columns.status && <SortHeader label="Status" sortKey="status" rules={sortRules} onToggle={toggleSort} align="left" />}
+            {columns.project && <span>Project</span>}
             <span>Task</span>
-            {columns.project && <span className="text-right">List</span>}
             {columns.dueDate && <SortHeader label="Due" sortKey="dueDate" rules={sortRules} onToggle={toggleSort} align="right" />}
             {columns.priority && <SortHeader label="Priority" sortKey="priority" rules={sortRules} onToggle={toggleSort} align="right" />}
             {columns.labels && <span className="text-right">Labels</span>}

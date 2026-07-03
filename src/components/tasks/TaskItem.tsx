@@ -151,6 +151,18 @@ export default function TaskItem({
         </span>
       )}
 
+      {/* Col: project (leading, pane-only edit) */}
+      {columns.project && (
+        <span className="flex justify-start min-w-0">
+          {task.project && (
+            <span className="text-xs text-slate-500 flex items-center gap-1.5 bg-slate-100 rounded-md px-1.5 py-0.5 truncate">
+              <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: task.project.color }} />
+              <span className="truncate">{task.project.name}</span>
+            </span>
+          )}
+        </span>
+      )}
+
       {/* Col: title (click opens detail pane) */}
       <span
         onClick={(e) => { e.stopPropagation(); onSelect(task); }}
@@ -164,18 +176,6 @@ export default function TaskItem({
           </span>
         ) : null}
       </span>
-
-      {/* Col: project/list (pane-only edit) */}
-      {columns.project && (
-        <span className="flex justify-end min-w-0">
-          {task.project && (
-            <span className="text-xs text-slate-500 flex items-center gap-1.5 bg-slate-100 rounded-md px-1.5 py-0.5 truncate">
-              <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: task.project.color }} />
-              <span className="truncate">{task.project.name}</span>
-            </span>
-          )}
-        </span>
-      )}
 
       {/* Col: due date (inline editable) */}
       {columns.dueDate && (

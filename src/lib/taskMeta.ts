@@ -11,10 +11,10 @@ export const COL_WIDTHS = {
   labels: 150,
 } as const;
 
-// Column order in the row: checkbox | STATUS | task (flex) | project | due | priority | labels.
-// "status" sits before the flex title; the rest trail after it.
-export const LEADING_COLS = ["status"] as const;
-export const TRAILING_COLS = ["project", "dueDate", "priority", "labels"] as const;
+// Column order in the row: checkbox | STATUS | PROJECT | task (flex) | due | priority | labels.
+// "status" and "project" sit before the flex title; the rest trail after it.
+export const LEADING_COLS = ["status", "project"] as const;
+export const TRAILING_COLS = ["dueDate", "priority", "labels"] as const;
 
 // Build the grid-template-columns string honoring the column order above.
 export function gridTemplate(columns: ColumnConfig): string {
