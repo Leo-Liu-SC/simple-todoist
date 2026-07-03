@@ -38,3 +38,20 @@ export async function requireAuth(req: NextRequest) {
   if (!token) return false;
   return verifyToken(token);
 }
+
+// Bearer-token auth for the external API (/api/v1/*). External apps send
+// `Authorization: Bearer <API_TOKEN>`. Uses a constant-time comparison.
+export function requireApiToken(req: NextRequest): boolean {
+  const expected = process.env.API_TOKEN;
+  if (!expected) return false;
+  const header = req.headers.get("authorization") ?? "";
+  const match = header.match(/^Bearer\s+(.+)$/i);
+  if (!match) return false;
+  const provided = match[1];
+  if (provided.length !== expected.length) return false;
+  let diff = 0;
+  for (let i = 0; i < expected.length; i++) {
+    diff |= provided.charCodeAt(i) ^ expected.charCodeAt(i);
+  }
+  return diff === 0;
+}

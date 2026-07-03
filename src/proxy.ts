@@ -8,7 +8,13 @@ const secret = new TextEncoder().encode(
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (pathname.startsWith("/login") || pathname.startsWith("/api/login")) {
+  // Login route and the external bearer-token API (/api/v1) authenticate
+  // themselves; skip the cookie gate for them.
+  if (
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/api/login") ||
+    pathname.startsWith("/api/v1")
+  ) {
     return NextResponse.next();
   }
 
