@@ -49,3 +49,7 @@ next-env.d.ts
 
 # screenshots / scratch images
 *.png
+
+# mcp build artifacts
+/mcp/node_modules
+/mcp/dist

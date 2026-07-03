@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "simple-todoist": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/leoliu/Documents/AIDev/Simple-todoist/mcp/dist/index.js"
+      ],
+      "env": {}
+    }
+  }
+}
