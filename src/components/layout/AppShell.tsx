@@ -21,11 +21,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       }
       if (e.key === "Escape") {
         setGlobalQuickAdd(false);
+        setSelectedTask(null);
       }
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [setSelectedTask]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-white">
@@ -52,7 +53,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <span className="font-semibold text-slate-900 tracking-tight">Tasks</span>
         </div>
 
-        <div className={`flex-1 overflow-hidden pt-12 lg:pt-0 min-w-0 ${selectedTask ? "hidden md:flex md:flex-col" : "flex flex-col"}`}>
+        <div className="flex-1 overflow-hidden pt-12 lg:pt-0 min-w-0 flex flex-col">
           {globalQuickAdd && (
             <div className="px-4 pt-4">
               <QuickAdd
@@ -63,17 +64,23 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           )}
           {children}
         </div>
+      </div>
 
-        {selectedTask && (
-          <div className="w-full md:w-[400px] border-l-2 border-slate-300 bg-white flex-shrink-0 overflow-hidden flex flex-col shadow-[-12px_0_32px_-8px_rgb(15_23_42/0.14)]">
+      {selectedTask && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+            onClick={() => setSelectedTask(null)}
+          />
+          <div className="relative bg-white rounded-2xl shadow-[0_24px_64px_-12px_rgb(15_23_42/0.35)] w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
             <TaskDetail
               taskId={selectedTask.id}
               onClose={() => setSelectedTask(null)}
               onDeleted={() => setSelectedTask(null)}
             />
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
