@@ -205,33 +205,40 @@ export default function TaskItem({
         </span>
       )}
 
-      {/* Col: priority (inline editable) */}
+      {/* Col: priority — click opens a popover menu of priorities */}
       {columns.priority && (
-        <span className="flex justify-start min-w-0">
-          {editing === "priority" ? (
-            <select
-              autoFocus
-              defaultValue={task.priority}
-              onClick={(e) => e.stopPropagation()}
-              onBlur={() => setEditing(null)}
-              onChange={async (e) => {
-                await updateTask(task.id, { priority: Number(e.target.value) as Priority });
-                setEditing(null);
-              }}
-              className={cellSelect}
-            >
-              {PRIORITIES.map((p) => (
-                <option key={p.value} value={p.value}>{p.label}</option>
-              ))}
-            </select>
-          ) : (
-            <button
-              onClick={startEdit("priority")}
-              className={`flex items-center gap-1 text-xs font-medium rounded px-1 py-0.5 hover:bg-slate-100 ${task.priority < 4 ? prio.text : "text-slate-300"}`}
-              title="Click to set priority"
-            >
-              {task.priority < 4 ? (<><Flag size={12} className="fill-current" />{prio.label}</>) : <Flag size={12} />}
-            </button>
+        <span className="relative flex justify-start min-w-0">
+          <button
+            onClick={startEdit("priority")}
+            className={`flex items-center gap-1 text-xs font-medium rounded px-1 py-0.5 hover:ring-2 hover:ring-slate-200 hover:bg-slate-50 ${task.priority < 4 ? prio.text : "text-slate-300"}`}
+            title="Click to set priority"
+          >
+            {task.priority < 4 ? (<><Flag size={12} className="fill-current" />{prio.label}</>) : <Flag size={12} />}
+          </button>
+          {editing === "priority" && (
+            <>
+              <div className="fixed inset-0 z-20" onClick={(e) => { e.stopPropagation(); setEditing(null); }} />
+              <div
+                className="absolute left-0 top-7 z-30 bg-white border border-slate-200 rounded-xl shadow-[var(--shadow-pop)] py-1.5 w-40"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <p className="px-3 pb-1 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Set priority</p>
+                {PRIORITIES.map((p) => (
+                  <button
+                    key={p.value}
+                    onClick={async () => {
+                      setEditing(null);
+                      await updateTask(task.id, { priority: p.value });
+                    }}
+                    className="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+                  >
+                    <Flag size={12} className={`flex-shrink-0 fill-current ${p.text}`} />
+                    <span className="flex-1 text-left">{p.label}</span>
+                    {task.priority === p.value && <Check size={14} className="text-indigo-600" />}
+                  </button>
+                ))}
+              </div>
+            </>
           )}
         </span>
       )}
