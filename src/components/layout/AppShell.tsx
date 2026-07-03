@@ -65,7 +65,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         {selectedTask && (
-          <div className="w-full md:w-[400px] border-l border-slate-200 bg-white flex-shrink-0 overflow-hidden flex flex-col shadow-[-8px_0_24px_-12px_rgb(15_23_42/0.08)]">
+          <div className="w-full md:w-[400px] border-l-2 border-slate-300 bg-white flex-shrink-0 overflow-hidden flex flex-col shadow-[-12px_0_32px_-8px_rgb(15_23_42/0.14)]">
             <TaskDetail
               taskId={selectedTask.id}
               onClose={() => setSelectedTask(null)}
