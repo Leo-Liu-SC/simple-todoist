@@ -51,4 +51,5 @@ export interface ColumnConfig {
   dueDate: boolean;
   labels: boolean;
   project: boolean;
+  status: boolean;
 }

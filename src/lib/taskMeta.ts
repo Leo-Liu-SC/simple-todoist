@@ -12,10 +12,10 @@ export const PRIORITIES: { value: Priority; label: string; dot: string; ring: st
 
 export const PRIORITY_BY_VALUE = Object.fromEntries(PRIORITIES.map((p) => [p.value, p])) as Record<Priority, (typeof PRIORITIES)[number]>;
 
-export const STATUSES: { value: Status; label: string; dot: string }[] = [
-  { value: "todo", label: "To do", dot: "bg-slate-400" },
-  { value: "doing", label: "In progress", dot: "bg-amber-500" },
-  { value: "done", label: "Done", dot: "bg-emerald-500" },
+export const STATUSES: { value: Status; label: string; dot: string; pill: string }[] = [
+  { value: "todo", label: "To do", dot: "bg-slate-400", pill: "bg-slate-100 text-slate-600" },
+  { value: "doing", label: "In progress", dot: "bg-amber-500", pill: "bg-amber-100 text-amber-700" },
+  { value: "done", label: "Done", dot: "bg-emerald-500", pill: "bg-emerald-100 text-emerald-700" },
 ];
 
 export const STATUS_BY_VALUE = Object.fromEntries(STATUSES.map((s) => [s.value, s])) as Record<Status, (typeof STATUSES)[number]>;

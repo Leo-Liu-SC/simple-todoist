@@ -1,11 +1,11 @@
 "use client";
 import { format, isToday, isTomorrow, isPast } from "date-fns";
-import { ChevronRight, Calendar, GripVertical } from "lucide-react";
+import { ChevronRight, Calendar, GripVertical, Flag } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Task, ColumnConfig } from "@/lib/types";
 import { updateTask } from "@/hooks/useTasks";
-import { PRIORITY_BY_VALUE } from "@/lib/taskMeta";
+import { PRIORITY_BY_VALUE, STATUS_BY_VALUE } from "@/lib/taskMeta";
 import { useToast } from "@/lib/ToastContext";
 
 function formatDue(date: string) {
@@ -35,6 +35,7 @@ export default function TaskItem({
 
   const isDone = task.status === "done";
   const prio = PRIORITY_BY_VALUE[task.priority];
+  const stat = STATUS_BY_VALUE[task.status];
 
   async function toggleDone(e: React.MouseEvent) {
     e.stopPropagation();
@@ -91,11 +92,6 @@ export default function TaskItem({
       </button>
 
       <span className={`flex-1 text-sm min-w-0 truncate ${isDone ? "line-through text-slate-400" : "text-slate-700"}`}>
-        {task.status === "doing" && !isDone && (
-          <span className="mr-2 align-middle text-[10px] font-semibold text-amber-600 bg-amber-100 rounded px-1.5 py-0.5 uppercase tracking-wide">
-            Doing
-          </span>
-        )}
         {task.title}
         {task._count?.subtasks ? (
           <span className="ml-2 inline-flex items-center gap-0.5 text-xs text-slate-400 align-middle">
@@ -104,7 +100,7 @@ export default function TaskItem({
         ) : null}
       </span>
 
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="flex items-center gap-2.5 flex-shrink-0">
         {columns.labels && task.labels.map((l) => (
           <span
             key={l.id}
@@ -116,7 +112,7 @@ export default function TaskItem({
         ))}
 
         {columns.project && task.project && (
-          <span className="text-xs text-slate-400 flex items-center gap-1.5">
+          <span className="text-xs text-slate-500 flex items-center gap-1.5 bg-slate-100 rounded-md px-1.5 py-0.5">
             <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: task.project.color }} />
             {task.project.name}
           </span>
@@ -130,7 +126,16 @@ export default function TaskItem({
         )}
 
         {columns.priority && task.priority < 4 && (
-          <span className={`w-2 h-2 rounded-full flex-shrink-0 ${prio.dot}`} title={prio.label} />
+          <span className={`flex items-center gap-1 text-xs font-medium ${prio.text}`} title={`${prio.label} priority`}>
+            <Flag size={12} className="fill-current" />
+            {prio.label}
+          </span>
+        )}
+
+        {columns.status && (
+          <span className={`text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full ${stat.pill}`}>
+            {stat.label}
+          </span>
         )}
       </div>
     </div>
