@@ -9,7 +9,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Tasks",
+  title: "Simple-todoist",
   description: "Personal task manager",
 };
 
