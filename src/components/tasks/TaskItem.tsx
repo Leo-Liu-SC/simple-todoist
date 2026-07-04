@@ -1,12 +1,13 @@
 "use client";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import useSWR from "swr";
 import { format, isToday, isTomorrow, isPast, differenceInCalendarDays } from "date-fns";
-import { ChevronRight, ChevronDown, Calendar, GripVertical, Flag, Check, ListTree } from "lucide-react";
+import { ChevronRight, ChevronDown, Calendar, GripVertical, Flag, Check, ListTree, Folder, Hash } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Task, ColumnConfig, Priority, Status } from "@/lib/types";
+import { Task, ColumnConfig, Priority, Status, Project } from "@/lib/types";
 import { updateTask } from "@/hooks/useTasks";
+import { useProjects } from "@/hooks/useProjects";
 import { PRIORITIES, PRIORITY_BY_VALUE, STATUSES, statusMeta, gridTemplate, type ColWidths } from "@/lib/taskMeta";
 import { useToast } from "@/lib/ToastContext";
 import { useTaskContext } from "@/lib/TaskContext";
@@ -20,7 +21,27 @@ function formatDue(date: string) {
   return format(d, "MMM d");
 }
 
-type EditField = null | "priority" | "status" | "dueDate";
+// Flatten projects into parent-before-children order, tagging each with its
+// nesting depth so the project picker can indent sub-projects.
+function flattenProjects(projects: Project[]): { project: Project; depth: number }[] {
+  const byParent = new Map<number | null, Project[]>();
+  for (const p of projects) {
+    const key = p.parentId ?? null;
+    if (!byParent.has(key)) byParent.set(key, []);
+    byParent.get(key)!.push(p);
+  }
+  const out: { project: Project; depth: number }[] = [];
+  const walk = (parentId: number | null, depth: number) => {
+    for (const p of byParent.get(parentId) ?? []) {
+      out.push({ project: p, depth });
+      walk(p.id, depth + 1);
+    }
+  };
+  walk(null, 0);
+  return out;
+}
+
+type EditField = null | "priority" | "status" | "dueDate" | "project";
 
 export default function TaskItem({
   task,
@@ -44,6 +65,8 @@ export default function TaskItem({
   } = useSortable({ id: task.id, disabled: !sortable });
   const toast = useToast();
   const { selectedTask } = useTaskContext();
+  const { projects } = useProjects();
+  const projectTree = useMemo(() => flattenProjects(projects), [projects]);
 
   const [editing, setEditing] = useState<EditField>(null);
   const [subtaskExpanded, setSubtaskExpanded] = useState(false);
@@ -93,6 +116,11 @@ export default function TaskItem({
   async function setStatus(value: Status) {
     setEditing(null);
     await updateTask(task.id, { status: value });
+  }
+
+  async function setProject(projectId: number | null) {
+    setEditing(null);
+    await updateTask(task.id, { projectId });
   }
 
   const cellSelect =
@@ -193,12 +221,51 @@ export default function TaskItem({
 
         {/* Col: project */}
         {columns.project && (
-          <span className="flex justify-start min-w-0">
-            {task.project && (
-              <span className="text-xs text-slate-500 flex items-center gap-1.5 bg-slate-100 rounded-md px-1.5 py-0.5 truncate">
-                <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: task.project.color }} />
-                <span className="truncate">{task.project.name}</span>
-              </span>
+          <span className="relative flex justify-start min-w-0">
+            <button
+              onClick={startEdit("project")}
+              className={`text-xs flex items-center gap-1.5 rounded-md px-1.5 py-0.5 max-w-full hover:ring-2 hover:ring-slate-200 transition-shadow ${task.project ? "bg-slate-100 text-slate-500" : "text-slate-400 hover:bg-slate-100"}`}
+              title="Click to change project"
+            >
+              {task.project ? (
+                <>
+                  <Hash size={12} className="flex-shrink-0" style={{ color: task.project.color }} />
+                  <span className="truncate">{task.project.name}</span>
+                </>
+              ) : (
+                <Folder size={12} className="flex-shrink-0" />
+              )}
+            </button>
+            {editing === "project" && (
+              <>
+                <div className="fixed inset-0 z-20" onClick={(e) => { e.stopPropagation(); setEditing(null); }} />
+                <div
+                  className="absolute left-0 top-7 z-30 bg-white border border-slate-200 rounded-xl shadow-[var(--shadow-pop)] py-1.5 w-52 max-h-72 overflow-y-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <p className="px-3 pb-1 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Set project</p>
+                  <button
+                    onClick={() => setProject(null)}
+                    className="flex items-center gap-2.5 w-full px-3 py-1.5 text-sm text-slate-500 hover:bg-slate-50"
+                  >
+                    <Folder size={12} className="flex-shrink-0" />
+                    <span className="flex-1 text-left">No project</span>
+                    {!task.projectId && <Check size={14} className="text-indigo-600" />}
+                  </button>
+                  {projectTree.map(({ project: p, depth: d }) => (
+                    <button
+                      key={p.id}
+                      onClick={() => setProject(p.id)}
+                      style={{ paddingLeft: 12 + d * 16 }}
+                      className="flex items-center gap-2.5 w-full pr-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+                    >
+                      <Hash size={13} className="flex-shrink-0" style={{ color: p.color }} />
+                      <span className="flex-1 text-left truncate">{p.name}</span>
+                      {task.projectId === p.id && <Check size={14} className="text-indigo-600" />}
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
           </span>
         )}

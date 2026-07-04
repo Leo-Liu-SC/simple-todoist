@@ -91,12 +91,12 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             <button
               onClick={() => toggleCollapse(p.id)}
               className="absolute z-10 text-gray-300 hover:text-gray-500"
-              style={{ left: depth * 14 + 2 }}
+              style={{ left: depth * 20 + 2 }}
             >
               {isCollapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
             </button>
           ) : null}
-          <div className="flex-1" style={{ paddingLeft: depth * 14 }}>
+          <div className="flex-1" style={{ paddingLeft: depth * 20 }}>
             <NavItem
               href={`/project/${p.id}`}
               icon={Hash}
