@@ -2,7 +2,7 @@
 import { useState } from "react";
 import useSWR from "swr";
 import { format, isToday, isTomorrow, isPast } from "date-fns";
-import { ChevronRight, ChevronDown, Calendar, GripVertical, Flag, Check } from "lucide-react";
+import { ChevronRight, ChevronDown, Calendar, GripVertical, Flag, Check, ListTree } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Task, ColumnConfig, Priority, Status } from "@/lib/types";
@@ -190,15 +190,27 @@ export default function TaskItem({
           </span>
         )}
 
-        {/* Col: title — indented by nesting depth so subtasks read as nested */}
-        <button
-          onClick={(e) => { e.stopPropagation(); onSelect(task); }}
-          style={{ paddingLeft: depth * 28 }}
-          className={`text-sm min-w-0 truncate text-left rounded px-1 -mx-1 hover:bg-slate-100/70 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none ${isDone ? "line-through text-slate-500" : "text-slate-800"}`}
-          title="Open task details"
-        >
-          {task.title}
-        </button>
+        {/* Col: title — indented by nesting depth so subtasks read as nested.
+            Parent tasks show a subtask-count badge so they stand out in the list. */}
+        <span className="flex items-center gap-2 min-w-0" style={{ paddingLeft: depth * 28 }}>
+          {hasSubtasks && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setSubtaskExpanded(!subtaskExpanded); }}
+              className="flex items-center gap-0.5 text-[11px] font-medium text-slate-500 bg-slate-100 hover:bg-slate-200/80 rounded-full pl-1.5 pr-2 py-0.5 flex-shrink-0 transition-colors tabular-nums"
+              title={subtaskExpanded ? "Collapse subtasks" : "Expand subtasks"}
+            >
+              <ListTree size={11} aria-hidden="true" />
+              {task._count?.subtasks ?? 0}
+            </button>
+          )}
+          <button
+            onClick={(e) => { e.stopPropagation(); onSelect(task); }}
+            className={`text-sm min-w-0 truncate text-left rounded px-1 -mx-1 hover:bg-slate-100/70 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none ${isDone ? "line-through text-slate-500" : "text-slate-800"} ${hasSubtasks ? "font-semibold" : ""}`}
+            title="Open task details"
+          >
+            {task.title}
+          </button>
+        </span>
 
         {/* Col: due date */}
         {columns.dueDate && (

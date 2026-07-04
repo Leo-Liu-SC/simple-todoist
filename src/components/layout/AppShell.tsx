@@ -6,12 +6,50 @@ import TaskDetail from "@/components/tasks/TaskDetail";
 import QuickAdd from "@/components/tasks/QuickAdd";
 import { useTaskContext } from "@/lib/TaskContext";
 
+const SIDEBAR_MIN = 200;
+const SIDEBAR_MAX = 420;
+const SIDEBAR_DEFAULT = 240; // matches the previous w-60
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [globalQuickAdd, setGlobalQuickAdd] = useState(false);
   const { selectedTask, setSelectedTask } = useTaskContext();
   const dialogRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
+  const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT);
+  const [resizing, setResizing] = useState(false);
+
+  // Restore persisted sidebar width on mount.
+  useEffect(() => {
+    const saved = Number(localStorage.getItem("sidebarWidth"));
+    if (saved >= SIDEBAR_MIN && saved <= SIDEBAR_MAX) setSidebarWidth(saved);
+  }, []);
+
+  // Drag-to-resize: track pointer while the handle is held.
+  useEffect(() => {
+    if (!resizing) return;
+    function onMove(e: MouseEvent) {
+      const w = Math.min(SIDEBAR_MAX, Math.max(SIDEBAR_MIN, e.clientX));
+      setSidebarWidth(w);
+    }
+    function onUp() {
+      setResizing(false);
+      setSidebarWidth((w) => {
+        localStorage.setItem("sidebarWidth", String(w));
+        return w;
+      });
+    }
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "col-resize";
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [resizing]);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -80,11 +118,24 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         )}
 
         <div
-          className={`fixed inset-y-0 left-0 z-40 w-60 transition-transform duration-200 lg:static lg:translate-x-0 lg:z-auto ${
-            sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+          style={{ ["--sidebar-w" as string]: `${sidebarWidth}px` }}
+          className={`fixed inset-y-0 left-0 z-40 w-60 lg:w-[var(--sidebar-w)] lg:static lg:translate-x-0 lg:z-auto ${
+            resizing ? "" : "transition-transform duration-200"
+          } ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
         >
-          <Sidebar onClose={() => setSidebarOpen(false)} />
+          <div className="relative h-full">
+            <Sidebar onClose={() => setSidebarOpen(false)} />
+            {/* Drag handle to resize the sidebar (desktop only). */}
+            <div
+              role="separator"
+              aria-orientation="vertical"
+              aria-label="Resize sidebar"
+              onMouseDown={(e) => { e.preventDefault(); setResizing(true); }}
+              className="hidden lg:block absolute top-0 right-0 h-full w-1 cursor-col-resize group"
+            >
+              <div className={`absolute inset-y-0 right-0 w-0.5 transition-colors ${resizing ? "bg-indigo-400" : "bg-transparent group-hover:bg-indigo-300"}`} />
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-1 overflow-hidden min-w-0">
