@@ -117,11 +117,10 @@ export default function TaskItem({
           </button>
         )}
 
-        {/* Col: toggle + checkbox — toggle is always reserved width to keep checkbox aligned */}
-        <span
-          className="flex items-center gap-1 flex-shrink-0"
-          style={{ paddingLeft: depth * 20 }}
-        >
+        {/* Col: toggle + checkbox — toggle is always reserved width to keep checkbox aligned.
+            Nesting depth is expressed by indenting the title cell, not this one, so the
+            checkbox stays within its fixed 40px track and never overlaps the status pill. */}
+        <span className="flex items-center gap-1 flex-shrink-0">
           <button
             onClick={(e) => { e.stopPropagation(); if (hasSubtasks) setSubtaskExpanded(!subtaskExpanded); }}
             className={`w-4 h-4 flex items-center justify-center flex-shrink-0 rounded text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-colors ${!hasSubtasks ? "invisible" : ""}`}
@@ -191,9 +190,10 @@ export default function TaskItem({
           </span>
         )}
 
-        {/* Col: title */}
+        {/* Col: title — indented by nesting depth so subtasks read as nested */}
         <button
           onClick={(e) => { e.stopPropagation(); onSelect(task); }}
+          style={{ paddingLeft: depth * 28 }}
           className={`text-sm min-w-0 truncate text-left rounded px-1 -mx-1 hover:bg-slate-100/70 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none ${isDone ? "line-through text-slate-500" : "text-slate-800"}`}
           title="Open task details"
         >

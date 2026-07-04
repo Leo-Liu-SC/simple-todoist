@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   CalendarDays, Star, List, Plus, MoreHorizontal,
-  Pencil, Trash2, LogOut, Tag, ChevronRight, ChevronDown, CheckCircle2,
+  Pencil, Trash2, LogOut, Tag, Hash, ChevronRight, ChevronDown, CheckCircle2,
 } from "lucide-react";
 import { useProjects, deleteProject } from "@/hooks/useProjects";
 import { useLabels, deleteLabel } from "@/hooks/useLabels";
@@ -99,7 +99,8 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
           <div className="flex-1" style={{ paddingLeft: depth * 14 }}>
             <NavItem
               href={`/project/${p.id}`}
-              icon={() => <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: p.color }} />}
+              icon={Hash}
+              color={p.color}
               label={p.name}
               count={p._count?.tasks}
               indentIcon={hasKids}
@@ -157,7 +158,12 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
 
         <div className="pt-3 pb-1 px-3">
           <div className="flex items-center justify-between">
-            <span className="text-[13px] font-semibold text-slate-500 uppercase tracking-wider">Projects</span>
+            <span className="flex items-center gap-2">
+              <span className="text-[13px] font-semibold text-slate-500 uppercase tracking-wider">Projects</span>
+              {projects.length > 0 && (
+                <span className="text-[11px] font-semibold text-slate-500 bg-slate-200/70 rounded-md px-1.5 py-0.5 tabular-nums">{projects.length}</span>
+              )}
+            </span>
             <button
               onClick={() => setProjectForm("new")}
               className="text-slate-500 hover:text-slate-700 hover:bg-slate-200/60 p-1 rounded-md transition-colors"
