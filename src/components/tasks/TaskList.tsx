@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Plus, Settings2, List as ListIcon, Columns3, Search, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
@@ -14,9 +14,17 @@ import { useTaskContext } from "@/lib/TaskContext";
 import TaskItem from "./TaskItem";
 import QuickAdd from "./QuickAdd";
 import BoardView from "./BoardView";
-import { gridTemplate, statusRank } from "@/lib/taskMeta";
+import { gridTemplate, statusRank, COL_WIDTHS, TITLE_WIDTH, type ColWidths } from "@/lib/taskMeta";
+
+type ResizeCol = keyof ColWidths;
+const COL_DEFAULT: Record<ResizeCol, number> = { ...COL_WIDTHS, title: TITLE_WIDTH };
 
 const DEFAULT_COLUMNS: ColumnConfig = { priority: true, dueDate: true, labels: true, project: true, status: true };
+
+// Resizable columns: min/max drag bounds (px). Title allows a wider max.
+const COL_MIN = 60;
+const COL_MAX = 400;
+const COL_MAX_TITLE = 800;
 
 // Clickable column header with sort direction + precedence indicator.
 function SortHeader({
@@ -40,6 +48,22 @@ function SortHeader({
       {rule && (rule.dir === "asc" ? <ArrowUp size={11} /> : <ArrowDown size={11} />)}
       {rule && rules.length > 1 && <span className="text-[9px] font-bold">{idx + 1}</span>}
     </button>
+  );
+}
+
+// Drag handle sitting in the gutter at a header cell's right edge.
+function ResizeHandle({ onMouseDown, active }: { onMouseDown: (e: React.MouseEvent) => void; active: boolean }) {
+  return (
+    <span
+      role="separator"
+      aria-orientation="vertical"
+      aria-label="Resize column"
+      onMouseDown={onMouseDown}
+      onClick={(e) => e.stopPropagation()}
+      className="absolute top-1/2 -translate-y-1/2 -right-2 h-4 w-3 flex justify-center cursor-col-resize group/rh"
+    >
+      <span className={`w-0.5 h-full rounded-full transition-colors ${active ? "bg-indigo-400" : "bg-slate-200 group-hover/rh:bg-indigo-300"}`} />
+    </span>
   );
 }
 
@@ -72,6 +96,10 @@ export default function TaskList({
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [showColumnMenu, setShowColumnMenu] = useState(false);
   const [columns, setColumns] = useColumnConfig(`columns-${projectId ?? filters.view ?? "all"}`);
+  const colWidthsKey = `colwidths-${projectId ?? filters.view ?? "all"}`;
+  const [colWidths, setColWidths] = useState<ColWidths>({});
+  const [resizingCol, setResizingCol] = useState<ResizeCol | null>(null);
+  const resizeStart = useRef({ x: 0, w: 0 });
   const [search, setSearch] = useState("");
   const [orderedIds, setOrderedIds] = useState<number[]>([]);
   const [showSortMenu, setShowSortMenu] = useState(false);
@@ -91,6 +119,51 @@ export default function TaskList({
     const c = localStorage.getItem(completedKey);
     if (c === "false") setShowCompleted(false);
   }, [viewKey, sortKey, completedKey]);
+
+  // Restore persisted column widths.
+  useEffect(() => {
+    const stored = localStorage.getItem(colWidthsKey);
+    if (stored) { try { setColWidths(JSON.parse(stored)); } catch { /* ignore */ } }
+  }, [colWidthsKey]);
+
+  // Drag-to-resize a column: track pointer, clamp, and persist on release.
+  useEffect(() => {
+    if (!resizingCol) return;
+    const startX = resizeStart.current.x;
+    const startW = resizeStart.current.w;
+    // The title column allows a wider max than the fixed metadata columns.
+    const max = resizingCol === "title" ? COL_MAX_TITLE : COL_MAX;
+    function onMove(e: MouseEvent) {
+      const next = Math.min(max, Math.max(COL_MIN, startW + (e.clientX - startX)));
+      setColWidths((prev) => ({ ...prev, [resizingCol!]: next }));
+    }
+    function onUp() {
+      setResizingCol(null);
+      setColWidths((prev) => {
+        localStorage.setItem(colWidthsKey, JSON.stringify(prev));
+        return prev;
+      });
+    }
+    document.body.style.userSelect = "none";
+    document.body.style.cursor = "col-resize";
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      document.body.style.userSelect = "";
+      document.body.style.cursor = "";
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, [resizingCol, colWidthsKey]);
+
+  function startResize(col: ResizeCol) {
+    return (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      resizeStart.current = { x: e.clientX, w: colWidths[col] ?? COL_DEFAULT[col] };
+      setResizingCol(col);
+    };
+  }
 
   function setView(mode: "list" | "board") {
     setViewMode(mode);
@@ -182,12 +255,13 @@ export default function TaskList({
   return (
     <div className="flex flex-col h-full bg-white">
       <div className="px-6 py-4 border-b border-slate-200/80 flex items-center gap-3">
-        <div className="flex-1 min-w-0">
+        <div className="min-w-0">
           <h1 className="text-[19px] font-semibold text-slate-900 tracking-tight truncate">{title}</h1>
           <p className="text-xs text-slate-500 mt-0.5">
             {activeCount} {activeCount === 1 ? "task" : "tasks"}
           </p>
         </div>
+        <div className="flex-1" />
         <div className="relative">
           <Search size={15} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
           <input
@@ -197,6 +271,7 @@ export default function TaskList({
             className="text-sm bg-slate-100/70 border border-transparent rounded-lg pl-8 pr-3 py-1.5 w-40 text-slate-700 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-slate-300 focus:ring-2 focus:ring-indigo-500/20 focus:w-56 transition-all"
           />
         </div>
+        <div className="flex-1" />
         <div className="flex items-center bg-slate-100 rounded-lg p-0.5">
           <button
             onClick={() => setView("list")}
@@ -293,15 +368,43 @@ export default function TaskList({
         {!isLoading && filtered.length > 0 && (
           <div
             className="grid items-center gap-3 px-4 py-2 border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider sticky top-0 bg-white/95 backdrop-blur z-[5]"
-            style={{ gridTemplateColumns: gridTemplate(columns) }}
+            style={{ gridTemplateColumns: gridTemplate(columns, colWidths) }}
           >
             <span />
-            {columns.status && <SortHeader label="Status" sortKey="status" rules={sortRules} onToggle={toggleSort} align="left" />}
-            {columns.project && <span>Project</span>}
-            <span>Task</span>
-            {columns.dueDate && <SortHeader label="Due" sortKey="dueDate" rules={sortRules} onToggle={toggleSort} align="left" />}
-            {columns.priority && <SortHeader label="Priority" sortKey="priority" rules={sortRules} onToggle={toggleSort} align="left" />}
-            {columns.labels && <span>Labels</span>}
+            {columns.status && (
+              <span className="relative flex items-center">
+                <SortHeader label="Status" sortKey="status" rules={sortRules} onToggle={toggleSort} align="left" />
+                <ResizeHandle onMouseDown={startResize("status")} active={resizingCol === "status"} />
+              </span>
+            )}
+            {columns.project && (
+              <span className="relative flex items-center">
+                <span>Project</span>
+                <ResizeHandle onMouseDown={startResize("project")} active={resizingCol === "project"} />
+              </span>
+            )}
+            <span className="relative flex items-center">
+              <span>Task</span>
+              <ResizeHandle onMouseDown={startResize("title")} active={resizingCol === "title"} />
+            </span>
+            {columns.dueDate && (
+              <span className="relative flex items-center">
+                <SortHeader label="Due" sortKey="dueDate" rules={sortRules} onToggle={toggleSort} align="left" />
+                <ResizeHandle onMouseDown={startResize("dueDate")} active={resizingCol === "dueDate"} />
+              </span>
+            )}
+            {columns.priority && (
+              <span className="relative flex items-center">
+                <SortHeader label="Priority" sortKey="priority" rules={sortRules} onToggle={toggleSort} align="left" />
+                <ResizeHandle onMouseDown={startResize("priority")} active={resizingCol === "priority"} />
+              </span>
+            )}
+            {columns.labels && (
+              <span className="relative flex items-center">
+                <span>Labels</span>
+                <ResizeHandle onMouseDown={startResize("labels")} active={resizingCol === "labels"} />
+              </span>
+            )}
             <span />
           </div>
         )}
@@ -326,6 +429,7 @@ export default function TaskList({
                   task={task}
                   selected={task.id === selectedTask?.id}
                   columns={columns}
+                  colWidths={colWidths}
                   onSelect={setSelectedTask}
                   sortable
                 />
@@ -339,6 +443,7 @@ export default function TaskList({
               task={task}
               selected={task.id === selectedTask?.id}
               columns={columns}
+              colWidths={colWidths}
               onSelect={setSelectedTask}
             />
           ))

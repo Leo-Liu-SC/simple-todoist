@@ -16,14 +16,25 @@ export const COL_WIDTHS = {
 export const LEADING_COLS = ["status", "project"] as const;
 export const TRAILING_COLS = ["dueDate", "priority", "labels"] as const;
 
+// Default width (px) for the flexible title column when not resized.
+export const TITLE_WIDTH = 420;
+
+// Per-column width overrides (px). "title" is also resizable; the rest key
+// into COL_WIDTHS. Falls back to defaults when a key is absent.
+export type ColWidths = Partial<Record<keyof typeof COL_WIDTHS | "title", number>>;
+
 // Build the grid-template-columns string honoring the column order above.
-// The title is capped (not 1fr) and a trailing 1fr spacer absorbs leftover
-// width, so due/priority/labels sit right after the title instead of being
-// pushed to the far right edge.
-export function gridTemplate(columns: ColumnConfig): string {
-  const lead = LEADING_COLS.filter((k) => columns[k]).map((k) => `${COL_WIDTHS[k]}px`).join(" ");
-  const trail = TRAILING_COLS.filter((k) => columns[k]).map((k) => `${COL_WIDTHS[k]}px`).join(" ");
-  return [`40px`, lead, `minmax(120px,420px)`, trail, `1fr`].filter(Boolean).join(" ");
+// The title column is capped (not 1fr) and a trailing 1fr spacer absorbs
+// leftover width, so due/priority/labels sit right after the title instead of
+// being pushed to the far right edge. `widths` overrides individual column
+// widths for drag-to-resize; when the title isn't overridden it uses a
+// minmax so it still flexes down on narrow viewports.
+export function gridTemplate(columns: ColumnConfig, widths?: ColWidths): string {
+  const w = (k: keyof typeof COL_WIDTHS) => widths?.[k] ?? COL_WIDTHS[k];
+  const lead = LEADING_COLS.filter((k) => columns[k]).map((k) => `${w(k)}px`).join(" ");
+  const trail = TRAILING_COLS.filter((k) => columns[k]).map((k) => `${w(k)}px`).join(" ");
+  const title = widths?.title ? `${widths.title}px` : `minmax(120px,${TITLE_WIDTH}px)`;
+  return [`40px`, lead, title, trail, `1fr`].filter(Boolean).join(" ");
 }
 
 // Single source of truth for priority + status metadata, used across

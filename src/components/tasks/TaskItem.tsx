@@ -1,13 +1,13 @@
 "use client";
 import { useState } from "react";
 import useSWR from "swr";
-import { format, isToday, isTomorrow, isPast } from "date-fns";
+import { format, isToday, isTomorrow, isPast, differenceInCalendarDays } from "date-fns";
 import { ChevronRight, ChevronDown, Calendar, GripVertical, Flag, Check, ListTree } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Task, ColumnConfig, Priority, Status } from "@/lib/types";
 import { updateTask } from "@/hooks/useTasks";
-import { PRIORITIES, PRIORITY_BY_VALUE, STATUSES, statusMeta, gridTemplate } from "@/lib/taskMeta";
+import { PRIORITIES, PRIORITY_BY_VALUE, STATUSES, statusMeta, gridTemplate, type ColWidths } from "@/lib/taskMeta";
 import { useToast } from "@/lib/ToastContext";
 import { useTaskContext } from "@/lib/TaskContext";
 
@@ -26,6 +26,7 @@ export default function TaskItem({
   task,
   selected,
   columns,
+  colWidths,
   onSelect,
   sortable = false,
   depth = 0,
@@ -33,6 +34,7 @@ export default function TaskItem({
   task: Task;
   selected: boolean;
   columns: ColumnConfig;
+  colWidths?: ColWidths;
   onSelect: (task: Task) => void;
   sortable?: boolean;
   depth?: number;
@@ -56,6 +58,17 @@ export default function TaskItem({
   const prio = PRIORITY_BY_VALUE[task.priority];
   const stat = statusMeta(task.status);
   const duePast = task.dueDate && !isDone && isPast(new Date(task.dueDate)) && !isToday(new Date(task.dueDate));
+
+  // Color-code the due date by proximity (skipped for completed tasks):
+  //   overdue → red · within a day → amber · within a week → green · beyond → gray
+  const dueColor = (() => {
+    if (!task.dueDate || isDone) return "text-slate-400";
+    const days = differenceInCalendarDays(new Date(task.dueDate), new Date());
+    if (days < 0) return "text-red-600 font-medium";
+    if (days <= 1) return "text-amber-600 font-medium";
+    if (days <= 7) return "text-emerald-600";
+    return "text-slate-400";
+  })();
 
   async function toggleDone(e: React.MouseEvent) {
     e.stopPropagation();
@@ -86,7 +99,7 @@ export default function TaskItem({
     "w-full text-xs border border-indigo-300 rounded-md px-1.5 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20";
 
   const style = {
-    gridTemplateColumns: gridTemplate(columns),
+    gridTemplateColumns: gridTemplate(columns, colWidths),
     paddingLeft: "16px",
     paddingRight: "16px",
     ...(sortable
@@ -192,11 +205,11 @@ export default function TaskItem({
 
         {/* Col: title — indented by nesting depth so subtasks read as nested.
             Parent tasks show a subtask-count badge so they stand out in the list. */}
-        <span className="flex items-center gap-2 min-w-0" style={{ paddingLeft: depth * 28 }}>
+        <span className="flex items-start gap-2 min-w-0" style={{ paddingLeft: depth * 28 }}>
           {hasSubtasks && (
             <button
               onClick={(e) => { e.stopPropagation(); setSubtaskExpanded(!subtaskExpanded); }}
-              className="flex items-center gap-0.5 text-[11px] font-medium text-slate-500 bg-slate-100 hover:bg-slate-200/80 rounded-full pl-1.5 pr-2 py-0.5 flex-shrink-0 transition-colors tabular-nums"
+              className="flex items-center gap-0.5 text-[11px] font-medium text-slate-500 bg-slate-100 hover:bg-slate-200/80 rounded-full pl-1.5 pr-2 py-0.5 mt-0.5 flex-shrink-0 transition-colors tabular-nums"
               title={subtaskExpanded ? "Collapse subtasks" : "Expand subtasks"}
             >
               <ListTree size={11} aria-hidden="true" />
@@ -205,8 +218,8 @@ export default function TaskItem({
           )}
           <button
             onClick={(e) => { e.stopPropagation(); onSelect(task); }}
-            className={`text-sm min-w-0 truncate text-left rounded px-1 -mx-1 hover:bg-slate-100/70 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none ${isDone ? "line-through text-slate-500" : "text-slate-800"} ${hasSubtasks ? "font-semibold" : ""}`}
-            title="Open task details"
+            className={`text-sm min-w-0 text-left rounded px-1 -mx-1 leading-snug line-clamp-2 hover:bg-slate-100/70 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none ${isDone ? "line-through text-slate-500" : "text-slate-800"} ${hasSubtasks ? "font-semibold" : ""}`}
+            title={task.title}
           >
             {task.title}
           </button>
@@ -231,7 +244,7 @@ export default function TaskItem({
             ) : (
               <button
                 onClick={startEdit("dueDate")}
-                className={`text-xs flex items-center gap-1 tabular-nums rounded px-1 py-0.5 hover:bg-slate-100 ${duePast ? "text-red-500 font-medium" : task.dueDate ? "text-slate-500" : "text-slate-400"}`}
+                className={`text-xs flex items-center gap-1 tabular-nums rounded px-1 py-0.5 hover:bg-slate-100 ${dueColor}`}
                 title="Click to set due date"
               >
                 {task.dueDate ? (<><Calendar size={11} />{formatDue(task.dueDate)}</>) : <Calendar size={11} />}
@@ -304,6 +317,7 @@ export default function TaskItem({
           task={sub}
           selected={sub.id === selectedTask?.id}
           columns={columns}
+          colWidths={colWidths}
           onSelect={onSelect}
           depth={depth + 1}
         />
