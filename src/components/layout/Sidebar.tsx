@@ -4,10 +4,11 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   CalendarDays, Star, List, Plus, MoreHorizontal,
-  Pencil, Trash2, LogOut, Tag, Hash, ChevronRight, ChevronDown, CheckCircle2,
+  Pencil, Trash2, LogOut, Tag, Hash, ChevronRight, ChevronDown,
 } from "lucide-react";
 import { useProjects, deleteProject } from "@/hooks/useProjects";
 import { useLabels, deleteLabel } from "@/hooks/useLabels";
+import Logo from "@/components/ui/Logo";
 import ProjectForm from "@/components/projects/ProjectForm";
 import LabelForm from "@/components/projects/LabelForm";
 import { Project, Label } from "@/lib/types";
@@ -140,10 +141,8 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
     <aside className="flex flex-col h-full w-full bg-slate-50 border-r border-slate-200">
       <div className="px-4 py-3.5 border-b border-slate-200/80">
         <div className="flex items-center gap-2.5">
-          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-sm">
-            <CheckCircle2 size={16} strokeWidth={2.5} />
-          </span>
-          <span className="font-semibold text-slate-900 text-[17px] tracking-tight">Tasks</span>
+          <Logo size={28} className="shadow-sm rounded-[8px]" />
+          <span className="font-semibold text-slate-900 text-[17px] tracking-tight">Simpletodo</span>
         </div>
       </div>
 

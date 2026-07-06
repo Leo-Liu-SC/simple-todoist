@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2 } from "lucide-react";
+import Logo from "@/components/ui/Logo";
 
 export default function LoginPage() {
   const [password, setPassword] = useState("");
@@ -30,9 +30,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 px-4">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-7">
-          <span className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-white shadow-lg shadow-indigo-500/25 mb-3">
-            <CheckCircle2 size={24} strokeWidth={2.5} />
-          </span>
+          <Logo size={48} className="rounded-2xl shadow-lg shadow-indigo-500/25 mb-3" />
           <h1 className="text-xl font-semibold text-slate-900 tracking-tight">Welcome back</h1>
           <p className="text-sm text-slate-500 mt-1">Sign in to your tasks</p>
         </div>
