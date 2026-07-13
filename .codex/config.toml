@@ -1,0 +1,3 @@
+[mcp_servers.simple-todoist]
+command = "node"
+args = ["/Users/leoliu/Documents/AIDev/Simple-todoist/mcp/dist/index.js"]
