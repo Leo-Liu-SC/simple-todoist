@@ -40,6 +40,7 @@ export default function TaskDetail({
   const toast = useToast();
 
   const [title, setTitle] = useState("");
+  const [nextAction, setNextAction] = useState("");
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
@@ -50,6 +51,7 @@ export default function TaskDetail({
   useEffect(() => {
     if (task) {
       setTitle(task.title);
+      setNextAction(task.nextAction ?? "");
       setDescription(task.description ?? "");
       setDueDraft(task.dueDate ? format(new Date(task.dueDate), "yyyy-MM-dd") : "");
     }
@@ -66,6 +68,10 @@ export default function TaskDetail({
 
   async function handleTitleBlur() {
     if (task && title !== task.title) await save({ title });
+  }
+
+  async function handleNextActionBlur() {
+    if (task && nextAction !== (task.nextAction ?? "")) await save({ nextAction: nextAction || null });
   }
 
   async function handleDescriptionBlur() {
@@ -182,6 +188,15 @@ export default function TaskDetail({
             onBlur={handleTitleBlur}
             className={`w-full text-xl font-semibold tracking-tight focus:outline-none border-b-2 border-transparent focus:border-indigo-400 pb-1 transition-colors ${task.status === "done" ? "line-through text-slate-500" : "text-slate-900"}`}
             placeholder="Task title"
+          />
+
+          <input
+            aria-label="Next action"
+            value={nextAction}
+            onChange={(e) => setNextAction(e.target.value)}
+            onBlur={handleNextActionBlur}
+            className="w-full text-sm text-slate-700 focus:outline-none border-b border-transparent focus:border-indigo-400 pb-1 transition-colors placeholder:text-slate-400"
+            placeholder="What's the next action?"
           />
 
           <div>
