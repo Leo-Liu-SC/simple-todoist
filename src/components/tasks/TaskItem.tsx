@@ -283,13 +283,20 @@ export default function TaskItem({
               {task._count?.subtasks ?? 0}
             </button>
           )}
-          <button
-            onClick={(e) => { e.stopPropagation(); onSelect(task); }}
-            className={`text-sm min-w-0 text-left rounded px-1 -mx-1 leading-snug line-clamp-2 hover:bg-slate-100/70 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none ${isDone ? "line-through text-slate-500" : "text-slate-800"} ${hasSubtasks ? "font-semibold" : ""}`}
-            title={task.title}
-          >
-            {task.title}
-          </button>
+          <span className="flex flex-col min-w-0">
+            <button
+              onClick={(e) => { e.stopPropagation(); onSelect(task); }}
+              className={`text-sm min-w-0 text-left rounded px-1 -mx-1 leading-snug line-clamp-2 hover:bg-slate-100/70 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none ${isDone ? "line-through text-slate-500" : "text-slate-800"} ${hasSubtasks ? "font-semibold" : ""}`}
+              title={task.title}
+            >
+              {task.title}
+            </button>
+            {task.nextAction && (
+              <span className="text-xs text-slate-400 truncate px-1">
+                {task.nextAction}
+              </span>
+            )}
+          </span>
         </span>
 
         {/* Col: due date */}
