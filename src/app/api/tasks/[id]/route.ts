@@ -56,6 +56,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
   const updates: Record<string, unknown> = {};
   if (body.title !== undefined) updates.title = body.title;
   if (body.description !== undefined) updates.description = body.description;
+  if (body.nextAction !== undefined) updates.nextAction = body.nextAction || null;
   if (body.dueDate !== undefined) updates.dueDate = body.dueDate ? new Date(body.dueDate) : null;
   if (body.priority !== undefined) updates.priority = body.priority;
   if (body.status !== undefined) updates.status = body.status;
