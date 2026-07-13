@@ -23,6 +23,7 @@ model Task {
   id          Int         @id @default(autoincrement())
   title       String
   description String?
+  nextAction  String?
   dueDate     DateTime?
   priority    Int         @default(4)
   status      String      @default("todo")
