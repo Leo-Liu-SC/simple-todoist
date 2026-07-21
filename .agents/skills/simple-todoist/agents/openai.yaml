@@ -1,0 +1,14 @@
+interface:
+  display_name: "Simple Todoist"
+  short_description: "Manage tasks via Simple-todoist MCP."
+  default_prompt: "Use $simple-todoist to manage my Simple-todoist tasks."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "simple-todoist"
+      description: "Simple-todoist task, project, and label MCP server"
+      transport: "stdio"
+
+policy:
+  allow_implicit_invocation: true
