@@ -68,7 +68,7 @@ export default function TaskCard({ task }: { task: Task }) {
           onClick={toggleDone}
           onPointerDown={(e) => e.stopPropagation()}
           aria-hidden="true"
-          className={`mt-0.5 flex-shrink-0 w-[16px] h-[16px] rounded-full border-2 transition-all flex items-center justify-center p-1 -m-1 cursor-pointer ${
+          className={`flex-shrink-0 w-6 h-6 rounded-full border-2 transition-all flex items-center justify-center cursor-pointer ${
             isDone ? "border-indigo-500 bg-indigo-500" : `bg-transparent ${prio.ring}`
           }`}
         >

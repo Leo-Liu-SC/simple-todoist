@@ -152,10 +152,10 @@ export default function TaskItem({
             {...attributes}
             {...listeners}
             onClick={(e) => e.stopPropagation()}
-            className="absolute left-0.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-500 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing transition-opacity"
-            title="Drag to reorder"
+            className="absolute left-0.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-500 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing transition-opacity w-6 h-6 flex items-center justify-center"
+            aria-label="Drag to reorder"
           >
-            <GripVertical size={14} />
+            <GripVertical size={14} aria-hidden="true" />
           </button>
         )}
 
@@ -166,18 +166,18 @@ export default function TaskItem({
           {hasSubtasks ? (
             <button
               onClick={(e) => { e.stopPropagation(); setSubtaskExpanded(!subtaskExpanded); }}
-              className="w-4 h-4 flex items-center justify-center flex-shrink-0 rounded text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-colors p-1 -m-1"
+              className="w-6 h-6 flex items-center justify-center flex-shrink-0 rounded text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-colors"
               aria-label={subtaskExpanded ? "Collapse subtasks" : "Expand subtasks"}
             >
               {subtaskExpanded ? <ChevronDown size={12} aria-hidden="true" /> : <ChevronRight size={12} aria-hidden="true" />}
             </button>
           ) : (
-            <span className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+            <span className="w-6 h-6 flex-shrink-0" aria-hidden="true" />
           )}
           <button
             onClick={toggleDone}
             aria-label={isDone ? "Mark as to-do" : "Mark as done"}
-            className={`w-[16px] h-[16px] rounded border-2 transition-all flex items-center justify-center flex-shrink-0 p-1 -m-1 ${
+            className={`w-6 h-6 rounded border-2 transition-all flex items-center justify-center flex-shrink-0 ${
               isDone ? "border-indigo-500 bg-indigo-500" : `bg-transparent ${prio.ring}`
             }`}
           >
@@ -194,7 +194,7 @@ export default function TaskItem({
           <span className="relative flex justify-start min-w-0">
             <button
               onClick={startEdit("status")}
-              className={`text-[11px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full hover:ring-2 hover:ring-slate-200 ${stat.pill}`}
+              className={`text-[11px] font-semibold uppercase tracking-wide px-2 py-1 rounded-full hover:ring-2 hover:ring-slate-200 ${stat.pill}`}
               title="Click to change status"
             >
               {stat.label}
@@ -229,7 +229,7 @@ export default function TaskItem({
           <span className="relative flex justify-start min-w-0">
             <button
               onClick={startEdit("project")}
-              className={`text-xs flex items-center gap-1.5 rounded-md px-1.5 py-0.5 max-w-full hover:ring-2 hover:ring-slate-200 transition-shadow ${task.project ? "bg-slate-100 text-slate-600" : "text-slate-500 hover:bg-slate-100"}`}
+              className={`text-xs flex items-center gap-1.5 rounded-md px-1.5 py-1 min-h-6 max-w-full hover:ring-2 hover:ring-slate-200 transition-shadow ${task.project ? "bg-slate-100 text-slate-600" : "text-slate-500 hover:bg-slate-100"}`}
               title="Click to change project"
             >
               {task.project ? (
@@ -281,7 +281,7 @@ export default function TaskItem({
           {hasSubtasks && (
             <button
               onClick={(e) => { e.stopPropagation(); setSubtaskExpanded(!subtaskExpanded); }}
-              className="flex items-center gap-0.5 text-[11px] font-medium text-slate-500 bg-slate-100 hover:bg-slate-200/80 rounded-full pl-1.5 pr-2 py-0.5 mt-0.5 flex-shrink-0 transition-colors tabular-nums"
+              className="flex items-center gap-0.5 text-[11px] font-medium text-slate-500 bg-slate-100 hover:bg-slate-200/80 rounded-full pl-1.5 pr-2 py-1 mt-0.5 flex-shrink-0 transition-colors tabular-nums min-h-6"
               title={subtaskExpanded ? "Collapse subtasks" : "Expand subtasks"}
             >
               <ListTree size={11} aria-hidden="true" />
@@ -291,7 +291,7 @@ export default function TaskItem({
           <span className="flex flex-col min-w-0">
             <button
               onClick={(e) => { e.stopPropagation(); onSelect(task); }}
-              className={`text-sm min-w-0 text-left rounded px-1 -mx-1 leading-snug line-clamp-2 hover:bg-slate-100/70 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none ${isDone ? "line-through text-slate-500" : "text-slate-800"} ${hasSubtasks ? "font-semibold" : ""}`}
+              className={`text-sm min-w-0 text-left rounded px-1 -mx-1 leading-snug line-clamp-2 py-0.5 min-h-6 hover:bg-slate-100/70 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none ${isDone ? "line-through text-slate-500" : "text-slate-800"} ${hasSubtasks ? "font-semibold" : ""}`}
               title={task.title}
             >
               {task.title}
@@ -323,7 +323,7 @@ export default function TaskItem({
             ) : (
               <button
                 onClick={startEdit("dueDate")}
-                className={`text-xs flex items-center gap-1 tabular-nums rounded px-1 py-0.5 hover:bg-slate-100 ${dueColor}`}
+                className={`text-xs flex items-center gap-1 tabular-nums rounded px-1 py-1 min-h-6 hover:bg-slate-100 ${dueColor}`}
                 title="Click to set due date"
               >
                 {task.dueDate ? (<><Calendar size={11} />{formatDue(task.dueDate)}</>) : <Calendar size={11} />}
@@ -337,7 +337,7 @@ export default function TaskItem({
           <span className="relative flex justify-start min-w-0">
             <button
               onClick={startEdit("priority")}
-              className={`flex items-center gap-1 text-xs font-medium rounded px-1 py-0.5 hover:ring-2 hover:ring-slate-200 hover:bg-slate-50 ${task.priority < 4 ? prio.text : "text-slate-500"}`}
+              className={`flex items-center gap-1 text-xs font-medium rounded px-1 py-1 min-h-6 min-w-6 hover:ring-2 hover:ring-slate-200 hover:bg-slate-50 ${task.priority < 4 ? prio.text : "text-slate-500"}`}
               title="Click to set priority"
             >
               {task.priority < 4 ? (<><Flag size={12} className="fill-current" />{prio.label}</>) : <Flag size={12} />}

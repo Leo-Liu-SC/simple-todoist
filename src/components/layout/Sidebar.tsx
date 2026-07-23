@@ -92,7 +92,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             <button
               onClick={() => toggleCollapse(p.id)}
               aria-label={isCollapsed ? "Expand project" : "Collapse project"}
-              className="absolute z-10 text-gray-300 hover:text-gray-500 w-5 h-5 flex items-center justify-center"
+              className="absolute z-10 text-gray-300 hover:text-gray-500 w-6 h-6 flex items-center justify-center"
               style={{ left: depth * 20 + 2 }}
             >
               {isCollapsed ? <ChevronRight size={12} aria-hidden="true" /> : <ChevronDown size={12} aria-hidden="true" />}
@@ -167,7 +167,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             <button
               onClick={() => setProjectForm("new")}
               aria-label="Add project"
-              className="text-slate-500 hover:text-slate-700 hover:bg-slate-200/60 p-1 rounded-md transition-colors"
+              className="text-slate-500 hover:text-slate-700 hover:bg-slate-200/60 p-1.5 rounded-md transition-colors"
             >
               <Plus size={14} aria-hidden="true" />
             </button>
@@ -182,7 +182,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             <button
               onClick={() => setLabelForm("new")}
               aria-label="Add label"
-              className="text-slate-500 hover:text-slate-700 hover:bg-slate-200/60 p-1 rounded-md transition-colors"
+              className="text-slate-500 hover:text-slate-700 hover:bg-slate-200/60 p-1.5 rounded-md transition-colors"
             >
               <Plus size={14} aria-hidden="true" />
             </button>

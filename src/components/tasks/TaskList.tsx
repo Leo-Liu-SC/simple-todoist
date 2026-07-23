@@ -41,8 +41,8 @@ function SortHeader({
   return (
     <button
       onClick={() => onToggle(sortKey)}
-      className={`flex items-center gap-1 ${align === "right" ? "justify-end" : "justify-start"} hover:text-slate-700 transition-colors ${rule ? "text-indigo-600" : ""}`}
-      title="Click to sort · click again to reverse · again to remove"
+      className={`flex items-center gap-1 py-1 min-w-6 ${align === "right" ? "justify-end" : "justify-start"} hover:text-slate-700 transition-colors ${rule ? "text-indigo-600" : ""}`}
+      aria-label={`Sort by ${label}`}
     >
       {label}
       {rule && (rule.dir === "asc" ? <ArrowUp size={11} /> : <ArrowDown size={11} />)}
