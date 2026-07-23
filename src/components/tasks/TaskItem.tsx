@@ -172,20 +172,22 @@ export default function TaskItem({
               {subtaskExpanded ? <ChevronDown size={12} aria-hidden="true" /> : <ChevronRight size={12} aria-hidden="true" />}
             </button>
           ) : (
-            <span className="w-6 h-6 flex-shrink-0" aria-hidden="true" />
+            <span className="w-6 h-6 flex-shrink-0 flex items-center justify-center" aria-hidden="true"><span className="w-4 h-4" /></span>
           )}
           <button
             onClick={toggleDone}
             aria-label={isDone ? "Mark as to-do" : "Mark as done"}
-            className={`w-6 h-6 rounded border-2 transition-all flex items-center justify-center flex-shrink-0 ${
-              isDone ? "border-indigo-500 bg-indigo-500" : `bg-transparent ${prio.ring}`
-            }`}
+            className="w-6 h-6 flex items-center justify-center flex-shrink-0"
           >
-            {isDone && (
-              <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 10">
-                <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            )}
+            <span className={`w-4 h-4 rounded border-2 transition-all flex items-center justify-center ${
+              isDone ? "border-indigo-500 bg-indigo-500" : `bg-transparent ${prio.ring}`
+            }`}>
+              {isDone && (
+                <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 10">
+                  <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </span>
           </button>
         </span>
 
