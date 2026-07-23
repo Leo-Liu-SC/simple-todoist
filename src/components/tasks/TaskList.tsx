@@ -265,6 +265,7 @@ export default function TaskList({
         <div className="relative">
           <Search size={15} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
           <input
+            aria-label="Search tasks"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search…"
@@ -292,10 +293,11 @@ export default function TaskList({
           <div className="relative">
             <button
               onClick={() => setShowSortMenu(!showSortMenu)}
+              aria-label="Sort and display options"
+              aria-expanded={showSortMenu}
               className={`p-1.5 rounded-lg transition-colors ${sortRules.length > 0 ? "text-indigo-600 bg-indigo-50" : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"}`}
-              title="Sort & display options"
             >
-              <ArrowUpDown size={16} />
+              <ArrowUpDown size={16} aria-hidden="true" />
             </button>
             {showSortMenu && (
               <>
@@ -319,6 +321,8 @@ export default function TaskList({
                   <div className="my-1.5 border-t border-slate-200" />
                   <button
                     onClick={toggleCompleted}
+                    aria-pressed={showCompleted}
+                    aria-label="Show completed tasks"
                     className="flex items-center justify-between w-full px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
                   >
                     Show completed
@@ -367,45 +371,46 @@ export default function TaskList({
       <div className="flex-1 overflow-y-auto">
         {!isLoading && filtered.length > 0 && (
           <div
+            role="row"
             className="grid items-center gap-3 px-4 py-2 border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider sticky top-0 bg-white/95 backdrop-blur z-[5]"
             style={{ gridTemplateColumns: gridTemplate(columns, colWidths) }}
           >
-            <span />
+            <span role="columnheader" aria-label="Actions" />
             {columns.status && (
-              <span className="relative flex items-center">
+              <span role="columnheader" className="relative flex items-center">
                 <SortHeader label="Status" sortKey="status" rules={sortRules} onToggle={toggleSort} align="left" />
                 <ResizeHandle onMouseDown={startResize("status")} active={resizingCol === "status"} />
               </span>
             )}
             {columns.project && (
-              <span className="relative flex items-center">
+              <span role="columnheader" className="relative flex items-center">
                 <span>Project</span>
                 <ResizeHandle onMouseDown={startResize("project")} active={resizingCol === "project"} />
               </span>
             )}
-            <span className="relative flex items-center">
+            <span role="columnheader" className="relative flex items-center">
               <span>Task</span>
               <ResizeHandle onMouseDown={startResize("title")} active={resizingCol === "title"} />
             </span>
             {columns.dueDate && (
-              <span className="relative flex items-center">
+              <span role="columnheader" className="relative flex items-center">
                 <SortHeader label="Due" sortKey="dueDate" rules={sortRules} onToggle={toggleSort} align="left" />
                 <ResizeHandle onMouseDown={startResize("dueDate")} active={resizingCol === "dueDate"} />
               </span>
             )}
             {columns.priority && (
-              <span className="relative flex items-center">
+              <span role="columnheader" className="relative flex items-center">
                 <SortHeader label="Priority" sortKey="priority" rules={sortRules} onToggle={toggleSort} align="left" />
                 <ResizeHandle onMouseDown={startResize("priority")} active={resizingCol === "priority"} />
               </span>
             )}
             {columns.labels && (
-              <span className="relative flex items-center">
+              <span role="columnheader" className="relative flex items-center">
                 <span>Labels</span>
                 <ResizeHandle onMouseDown={startResize("labels")} active={resizingCol === "labels"} />
               </span>
             )}
-            <span />
+            <span role="columnheader" aria-label="Options" />
           </div>
         )}
         {isLoading && (

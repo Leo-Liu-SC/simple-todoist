@@ -156,6 +156,7 @@ export default function TaskDetail({
         </div>
         <button
           onClick={toggleComplete}
+          aria-pressed={task.status === "done"}
           className={`flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg border transition-colors ${
             task.status === "done"
               ? "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"

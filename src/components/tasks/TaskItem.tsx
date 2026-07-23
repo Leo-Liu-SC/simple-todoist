@@ -145,7 +145,8 @@ export default function TaskItem({
           selected ? "bg-indigo-50/70" : duePast ? "bg-red-50/40 hover:bg-red-50/70" : "hover:bg-slate-50"
         }`}
       >
-        {duePast && <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-red-400" />}
+        {duePast && <span className="absolute left-0 top-0 bottom-0 w-0.5 bg-red-400" aria-hidden="true" />}
+        {duePast && <span className="sr-only">Overdue: </span>}
         {sortable && depth === 0 && (
           <button
             {...attributes}
@@ -162,19 +163,23 @@ export default function TaskItem({
             Nesting depth is expressed by indenting the title cell, not this one, so the
             checkbox stays within its fixed 40px track and never overlaps the status pill. */}
         <span className="flex items-center gap-1 flex-shrink-0">
-          <button
-            onClick={(e) => { e.stopPropagation(); if (hasSubtasks) setSubtaskExpanded(!subtaskExpanded); }}
-            className={`w-4 h-4 flex items-center justify-center flex-shrink-0 rounded text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-colors ${!hasSubtasks ? "invisible" : ""}`}
-            title={subtaskExpanded ? "Collapse subtasks" : "Expand subtasks"}
-          >
-            {subtaskExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-          </button>
+          {hasSubtasks ? (
+            <button
+              onClick={(e) => { e.stopPropagation(); setSubtaskExpanded(!subtaskExpanded); }}
+              className="w-4 h-4 flex items-center justify-center flex-shrink-0 rounded text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-colors"
+              aria-label={subtaskExpanded ? "Collapse subtasks" : "Expand subtasks"}
+            >
+              {subtaskExpanded ? <ChevronDown size={12} aria-hidden="true" /> : <ChevronRight size={12} aria-hidden="true" />}
+            </button>
+          ) : (
+            <span className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+          )}
           <button
             onClick={toggleDone}
-            className={`w-[16px] h-[16px] rounded border-2 transition-all flex items-center justify-center flex-shrink-0 ${
+            aria-label={isDone ? "Mark as to-do" : "Mark as done"}
+            className={`w-[16px] h-[16px] rounded border-2 transition-all flex items-center justify-center flex-shrink-0 p-1 -m-1 ${
               isDone ? "border-indigo-500 bg-indigo-500" : `bg-transparent ${prio.ring}`
             }`}
-            title={isDone ? "Mark as to-do" : "Mark as done"}
           >
             {isDone && (
               <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 10">

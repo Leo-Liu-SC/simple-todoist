@@ -63,8 +63,10 @@ export default function QuickAdd({
       />
       <div className="flex items-center gap-2 flex-wrap">
         <div className="relative flex items-center">
-          <CalendarClock size={13} className="absolute left-2.5 text-slate-500 pointer-events-none" />
+          <CalendarClock size={13} className="absolute left-2.5 text-slate-500 pointer-events-none" aria-hidden="true" />
+          <label htmlFor="quickadd-when" className="sr-only">When (due date)</label>
           <input
+            id="quickadd-when"
             value={whenText}
             onChange={(e) => setWhenText(e.target.value)}
             placeholder="when… e.g. tomorrow"
@@ -77,23 +79,28 @@ export default function QuickAdd({
             {parsedDate ? `→ ${format(parsedDate, "EEE MMM d")}` : "no date"}
           </span>
         )}
-        <select
-          value={priority}
-          onChange={(e) => setPriority(Number(e.target.value))}
-          className={`text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 transition-all ${PRIORITY_COLORS[priority]}`}
-        >
-          <option value={1}>Urgent</option>
-          <option value={2}>High</option>
-          <option value={3}>Medium</option>
-          <option value={4}>No priority</option>
-        </select>
+        <div className="flex items-center">
+          <label htmlFor="quickadd-priority" className="sr-only">Priority</label>
+          <select
+            id="quickadd-priority"
+            value={priority}
+            onChange={(e) => setPriority(Number(e.target.value))}
+            className={`text-xs border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/15 transition-all ${PRIORITY_COLORS[priority]}`}
+          >
+            <option value={1}>Urgent</option>
+            <option value={2}>High</option>
+            <option value={3}>Medium</option>
+            <option value={4}>No priority</option>
+          </select>
+        </div>
         <div className="flex-1" />
-        <button type="button" onClick={onClose} className="text-slate-500 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100 transition-colors">
-          <X size={14} />
+        <button type="button" onClick={onClose} aria-label="Cancel" className="text-slate-500 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100 transition-colors">
+          <X size={14} aria-hidden="true" />
         </button>
         <button
           type="submit"
           disabled={!title.trim() || loading}
+          aria-disabled={!title.trim() || loading}
           className="flex items-center gap-1 px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-lg hover:bg-indigo-700 disabled:opacity-50 shadow-sm shadow-indigo-500/20 transition-colors"
         >
           <Plus size={12} /> Add task
