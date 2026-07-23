@@ -53,33 +53,31 @@ export default function TaskCard({ task }: { task: Task }) {
       {...listeners}
       onClick={() => setSelectedTask(task)}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          setSelectedTask(task);
-        }
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedTask(task); }
       }}
       role="button"
       tabIndex={0}
-      aria-label={`Open task: ${task.title}`}
-      className={`bg-white border rounded-xl p-3 cursor-pointer transition-all shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none ${
+      aria-label={`${isDone ? "Completed: " : ""}${task.title}`}
+      className={`relative bg-white border rounded-xl p-3 cursor-pointer transition-all shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus:outline-none ${
         selectedTask?.id === task.id ? "border-indigo-400 ring-2 ring-indigo-500/15" : "border-slate-200"
       }`}
     >
       <div className="flex items-start gap-2">
-        <button
+        {/* Visual tick only — aria-hidden; card's aria-label conveys done state */}
+        <div
           onClick={toggleDone}
           onPointerDown={(e) => e.stopPropagation()}
-          className={`mt-0.5 flex-shrink-0 w-[16px] h-[16px] rounded-full border-2 transition-all flex items-center justify-center ${
+          aria-hidden="true"
+          className={`mt-0.5 flex-shrink-0 w-[16px] h-[16px] rounded-full border-2 transition-all flex items-center justify-center p-1 -m-1 cursor-pointer ${
             isDone ? "border-indigo-500 bg-indigo-500" : `bg-transparent ${prio.ring}`
           }`}
-          title={isDone ? "Mark as to-do" : "Mark as done"}
         >
           {isDone && (
             <svg className="w-2 h-2 text-white" fill="none" viewBox="0 0 10 10">
               <path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           )}
-        </button>
+        </div>
         <span className={`text-sm flex-1 leading-snug ${isDone ? "line-through text-slate-500" : "text-slate-800"}`}>
           {task.title}
         </span>
@@ -98,13 +96,13 @@ export default function TaskCard({ task }: { task: Task }) {
           ))}
           {task.dueDate && (
             <span className={`text-xs flex items-center gap-1 tabular-nums ${duePast ? "text-red-500 font-medium" : "text-slate-500"}`}>
-              <Calendar size={10} />
+              <Calendar size={10} aria-hidden="true" />
               {formatDue(task.dueDate)}
             </span>
           )}
           {task._count?.subtasks ? (
             <span className="text-xs text-slate-500 flex items-center gap-0.5">
-              <ChevronRight size={10} />{task._count.subtasks}
+              <ChevronRight size={10} aria-hidden="true" />{task._count.subtasks}
             </span>
           ) : null}
         </div>
