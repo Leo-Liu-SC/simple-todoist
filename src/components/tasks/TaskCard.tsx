@@ -95,7 +95,7 @@ export default function TaskCard({ task }: { task: Task }) {
             </span>
           ))}
           {task.dueDate && (
-            <span className={`text-xs flex items-center gap-1 tabular-nums ${duePast ? "text-red-500 font-medium" : "text-slate-500"}`}>
+            <span className={`text-xs flex items-center gap-1 tabular-nums ${duePast ? "text-red-700 font-medium" : "text-slate-500"}`}>
               <Calendar size={10} aria-hidden="true" />
               {formatDue(task.dueDate)}
             </span>

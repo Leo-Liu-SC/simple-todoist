@@ -41,10 +41,10 @@ export function gridTemplate(columns: ColumnConfig, widths?: ColWidths): string 
 // list, board, detail, and quick-add so labels/colors stay consistent.
 
 export const PRIORITIES: { value: Priority; label: string; dot: string; ring: string; text: string }[] = [
-  { value: 1, label: "Urgent", dot: "bg-red-500", ring: "border-red-400 hover:border-red-500", text: "text-red-500" },
-  { value: 2, label: "High", dot: "bg-orange-500", ring: "border-orange-400 hover:border-orange-500", text: "text-orange-500" },
-  { value: 3, label: "Medium", dot: "bg-blue-500", ring: "border-blue-400 hover:border-blue-500", text: "text-blue-500" },
-  { value: 4, label: "Low", dot: "bg-slate-300", ring: "border-slate-300 hover:border-slate-400", text: "text-slate-400" },
+  { value: 1, label: "Urgent", dot: "bg-red-600", ring: "border-red-500 hover:border-red-600", text: "text-red-700" },
+  { value: 2, label: "High", dot: "bg-orange-600", ring: "border-orange-500 hover:border-orange-600", text: "text-orange-700" },
+  { value: 3, label: "Medium", dot: "bg-blue-600", ring: "border-blue-500 hover:border-blue-600", text: "text-blue-700" },
+  { value: 4, label: "Low", dot: "bg-slate-300", ring: "border-slate-300 hover:border-slate-400", text: "text-slate-500" },
 ];
 
 export const PRIORITY_BY_VALUE = Object.fromEntries(PRIORITIES.map((p) => [p.value, p])) as Record<Priority, (typeof PRIORITIES)[number]>;

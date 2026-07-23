@@ -85,10 +85,10 @@ export default function TaskItem({
   // Color-code the due date by proximity (skipped for completed tasks):
   //   overdue → red · within a day → amber · within a week → green · beyond → gray
   const dueColor = (() => {
-    if (!task.dueDate || isDone) return "text-slate-400";
+    if (!task.dueDate || isDone) return "text-slate-500";
     const days = differenceInCalendarDays(new Date(task.dueDate), new Date());
     if (days < 0) return "text-red-600 font-medium";
-    if (days <= 1) return "text-amber-600 font-medium";
+    if (days <= 1) return "text-amber-700 font-medium";
     if (days <= 7) return "text-emerald-600";
     return "text-slate-400";
   })();
@@ -229,7 +229,7 @@ export default function TaskItem({
           <span className="relative flex justify-start min-w-0">
             <button
               onClick={startEdit("project")}
-              className={`text-xs flex items-center gap-1.5 rounded-md px-1.5 py-0.5 max-w-full hover:ring-2 hover:ring-slate-200 transition-shadow ${task.project ? "bg-slate-100 text-slate-500" : "text-slate-400 hover:bg-slate-100"}`}
+              className={`text-xs flex items-center gap-1.5 rounded-md px-1.5 py-0.5 max-w-full hover:ring-2 hover:ring-slate-200 transition-shadow ${task.project ? "bg-slate-100 text-slate-600" : "text-slate-500 hover:bg-slate-100"}`}
               title="Click to change project"
             >
               {task.project ? (
@@ -297,7 +297,7 @@ export default function TaskItem({
               {task.title}
             </button>
             {task.nextAction && (
-              <span className="text-xs text-slate-400 truncate px-1">
+              <span className="text-xs text-slate-500 truncate px-1">
                 {task.nextAction}
               </span>
             )}
@@ -337,7 +337,7 @@ export default function TaskItem({
           <span className="relative flex justify-start min-w-0">
             <button
               onClick={startEdit("priority")}
-              className={`flex items-center gap-1 text-xs font-medium rounded px-1 py-0.5 hover:ring-2 hover:ring-slate-200 hover:bg-slate-50 ${task.priority < 4 ? prio.text : "text-slate-400"}`}
+              className={`flex items-center gap-1 text-xs font-medium rounded px-1 py-0.5 hover:ring-2 hover:ring-slate-200 hover:bg-slate-50 ${task.priority < 4 ? prio.text : "text-slate-500"}`}
               title="Click to set priority"
             >
               {task.priority < 4 ? (<><Flag size={12} className="fill-current" />{prio.label}</>) : <Flag size={12} />}

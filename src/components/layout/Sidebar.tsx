@@ -161,7 +161,7 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             <span className="flex items-center gap-2">
               <span className="text-[13px] font-semibold text-slate-500 uppercase tracking-wider">Projects</span>
               {projects.length > 0 && (
-                <span className="text-[11px] font-semibold text-slate-500 bg-slate-200/70 rounded-md px-1.5 py-0.5 tabular-nums">{projects.length}</span>
+                <span className="text-[11px] font-semibold text-slate-600 bg-slate-200/70 rounded-md px-1.5 py-0.5 tabular-nums">{projects.length}</span>
               )}
             </span>
             <button

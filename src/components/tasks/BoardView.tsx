@@ -17,7 +17,7 @@ function Column({ status, label, dot, tasks }: { status: Status; label: string; 
       <div className="flex items-center gap-2 px-2.5 pb-2.5">
         <span className={`w-2 h-2 rounded-full ${dot}`} />
         <span className="text-sm font-semibold text-slate-700">{label}</span>
-        <span className="text-xs text-slate-500 tabular-nums bg-slate-100 rounded-full px-1.5 py-0.5">{tasks.length}</span>
+        <span className="text-xs text-slate-600 tabular-nums bg-slate-100 rounded-full px-1.5 py-0.5">{tasks.length}</span>
       </div>
       <div
         ref={setNodeRef}
@@ -31,7 +31,7 @@ function Column({ status, label, dot, tasks }: { status: Status; label: string; 
           ))}
         </SortableContext>
         {tasks.length === 0 && (
-          <div className="text-xs text-slate-400 text-center py-8 border-2 border-dashed border-slate-200 rounded-xl">
+          <div className="text-xs text-slate-500 text-center py-8 border-2 border-dashed border-slate-200 rounded-xl">
             Drop here
           </div>
         )}
@@ -82,7 +82,7 @@ export default function BoardView({ filters }: { filters: TaskFilters }) {
   }
 
   return (
-    <div className="flex-1 overflow-x-auto overflow-y-hidden p-4">
+    <div className="flex-1 overflow-x-auto overflow-y-hidden p-4" tabIndex={0} aria-label="Task board">
       <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
         <div className="flex gap-4 h-full">
           {STATUSES.map((c) => (
