@@ -371,46 +371,45 @@ export default function TaskList({
       <div className="flex-1 overflow-y-auto">
         {!isLoading && filtered.length > 0 && (
           <div
-            role="row"
             className="grid items-center gap-3 px-4 py-2 border-b border-slate-200 text-[11px] font-semibold text-slate-500 uppercase tracking-wider sticky top-0 bg-white/95 backdrop-blur z-[5]"
             style={{ gridTemplateColumns: gridTemplate(columns, colWidths) }}
           >
-            <span role="columnheader" aria-label="Actions" />
+            <span />
             {columns.status && (
-              <span role="columnheader" className="relative flex items-center">
+              <span className="relative flex items-center">
                 <SortHeader label="Status" sortKey="status" rules={sortRules} onToggle={toggleSort} align="left" />
                 <ResizeHandle onMouseDown={startResize("status")} active={resizingCol === "status"} />
               </span>
             )}
             {columns.project && (
-              <span role="columnheader" className="relative flex items-center">
+              <span className="relative flex items-center">
                 <span>Project</span>
                 <ResizeHandle onMouseDown={startResize("project")} active={resizingCol === "project"} />
               </span>
             )}
-            <span role="columnheader" className="relative flex items-center">
+            <span className="relative flex items-center">
               <span>Task</span>
               <ResizeHandle onMouseDown={startResize("title")} active={resizingCol === "title"} />
             </span>
             {columns.dueDate && (
-              <span role="columnheader" className="relative flex items-center">
+              <span className="relative flex items-center">
                 <SortHeader label="Due" sortKey="dueDate" rules={sortRules} onToggle={toggleSort} align="left" />
                 <ResizeHandle onMouseDown={startResize("dueDate")} active={resizingCol === "dueDate"} />
               </span>
             )}
             {columns.priority && (
-              <span role="columnheader" className="relative flex items-center">
+              <span className="relative flex items-center">
                 <SortHeader label="Priority" sortKey="priority" rules={sortRules} onToggle={toggleSort} align="left" />
                 <ResizeHandle onMouseDown={startResize("priority")} active={resizingCol === "priority"} />
               </span>
             )}
             {columns.labels && (
-              <span role="columnheader" className="relative flex items-center">
+              <span className="relative flex items-center">
                 <span>Labels</span>
                 <ResizeHandle onMouseDown={startResize("labels")} active={resizingCol === "labels"} />
               </span>
             )}
-            <span role="columnheader" aria-label="Options" />
+            <span />
           </div>
         )}
         {isLoading && (

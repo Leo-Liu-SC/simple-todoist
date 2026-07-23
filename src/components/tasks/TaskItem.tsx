@@ -166,7 +166,7 @@ export default function TaskItem({
           {hasSubtasks ? (
             <button
               onClick={(e) => { e.stopPropagation(); setSubtaskExpanded(!subtaskExpanded); }}
-              className="w-4 h-4 flex items-center justify-center flex-shrink-0 rounded text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-colors"
+              className="w-4 h-4 flex items-center justify-center flex-shrink-0 rounded text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-colors p-1 -m-1"
               aria-label={subtaskExpanded ? "Collapse subtasks" : "Expand subtasks"}
             >
               {subtaskExpanded ? <ChevronDown size={12} aria-hidden="true" /> : <ChevronRight size={12} aria-hidden="true" />}

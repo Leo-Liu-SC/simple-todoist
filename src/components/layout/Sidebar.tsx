@@ -91,10 +91,11 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
           {hasKids ? (
             <button
               onClick={() => toggleCollapse(p.id)}
-              className="absolute z-10 text-gray-300 hover:text-gray-500"
+              aria-label={isCollapsed ? "Expand project" : "Collapse project"}
+              className="absolute z-10 text-gray-300 hover:text-gray-500 w-5 h-5 flex items-center justify-center"
               style={{ left: depth * 20 + 2 }}
             >
-              {isCollapsed ? <ChevronRight size={12} /> : <ChevronDown size={12} />}
+              {isCollapsed ? <ChevronRight size={12} aria-hidden="true" /> : <ChevronDown size={12} aria-hidden="true" />}
             </button>
           ) : null}
           <div className="flex-1" style={{ paddingLeft: depth * 20 }}>
@@ -165,9 +166,10 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             </span>
             <button
               onClick={() => setProjectForm("new")}
+              aria-label="Add project"
               className="text-slate-500 hover:text-slate-700 hover:bg-slate-200/60 p-1 rounded-md transition-colors"
             >
-              <Plus size={14} />
+              <Plus size={14} aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -179,9 +181,10 @@ export default function Sidebar({ onClose }: { onClose?: () => void }) {
             <span className="text-[13px] font-semibold text-slate-500 uppercase tracking-wider">Labels</span>
             <button
               onClick={() => setLabelForm("new")}
+              aria-label="Add label"
               className="text-slate-500 hover:text-slate-700 hover:bg-slate-200/60 p-1 rounded-md transition-colors"
             >
-              <Plus size={14} />
+              <Plus size={14} aria-hidden="true" />
             </button>
           </div>
         </div>
