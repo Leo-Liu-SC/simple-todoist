@@ -34,7 +34,7 @@ export function gridTemplate(columns: ColumnConfig, widths?: ColWidths): string 
   const lead = LEADING_COLS.filter((k) => columns[k]).map((k) => `${w(k)}px`).join(" ");
   const trail = TRAILING_COLS.filter((k) => columns[k]).map((k) => `${w(k)}px`).join(" ");
   const title = widths?.title ? `${widths.title}px` : `minmax(120px,${TITLE_WIDTH}px)`;
-  return [`40px`, lead, title, trail, `1fr`].filter(Boolean).join(" ");
+  return [`48px`, lead, title, trail, `1fr`].filter(Boolean).join(" ");
 }
 
 // Single source of truth for priority + status metadata, used across
