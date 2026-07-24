@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 
   if (view === "today") {
     const now = new Date();
-    where.dueDate = { gte: startOfDay(now), lte: endOfDay(now) };
+    where.dueDate = { lte: endOfDay(now) };
     where.status = { not: "done" };
   } else if (view === "upcoming") {
     const now = new Date();
