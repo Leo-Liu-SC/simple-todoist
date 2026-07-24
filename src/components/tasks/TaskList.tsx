@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
-import { Plus, Settings2, List as ListIcon, Columns3, Search, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Plus, Settings2, List as ListIcon, Columns3, Search, ArrowUpDown, ArrowUp, ArrowDown, CheckSquare, Square } from "lucide-react";
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
   type DragEndEvent,
@@ -290,6 +290,17 @@ export default function TaskList({
           </button>
         </div>
         {viewMode === "list" && (
+          <button
+            onClick={toggleCompleted}
+            aria-pressed={showCompleted}
+            aria-label="Show completed tasks"
+            title={showCompleted ? "Hide completed tasks" : "Show completed tasks"}
+            className={`p-1.5 rounded-lg transition-colors min-h-6 min-w-6 flex items-center justify-center ${!showCompleted ? "text-indigo-600 bg-indigo-50" : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"}`}
+          >
+            {showCompleted ? <CheckSquare size={16} aria-hidden="true" /> : <Square size={16} aria-hidden="true" />}
+          </button>
+        )}
+        {viewMode === "list" && (
           <div className="relative">
             <button
               onClick={() => setShowSortMenu(!showSortMenu)}
@@ -318,18 +329,6 @@ export default function TaskList({
                       <button onClick={clearSort} className="text-xs text-indigo-600 hover:text-indigo-800 pt-1">Clear sort</button>
                     </div>
                   )}
-                  <div className="my-1.5 border-t border-slate-200" />
-                  <button
-                    onClick={toggleCompleted}
-                    aria-pressed={showCompleted}
-                    aria-label="Show completed tasks"
-                    className="flex items-center justify-between w-full px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
-                  >
-                    Show completed
-                    <span className={`w-8 h-[18px] rounded-full relative transition-colors ${showCompleted ? "bg-indigo-500" : "bg-slate-300"}`}>
-                      <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow-sm transition-all ${showCompleted ? "left-4" : "left-0.5"}`} />
-                    </span>
-                  </button>
                 </div>
               </>
             )}
